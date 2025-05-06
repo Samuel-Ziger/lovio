@@ -26,11 +26,18 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/memory-ii
 app.use('/api/memories', memoriesRouter);
 
 // Servir arquivos estáticos do frontend
-app.use(express.static(path.join(__dirname, 'client/dist')));
+const distPath = path.join(__dirname, 'client', 'dist');
+app.use(express.static(distPath));
 
 // Rota para todas as outras requisições
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'client/dist', 'index.html'));
+  const indexPath = path.join(distPath, 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error('Erro ao enviar index.html:', err);
+      res.status(500).send('Erro ao carregar a aplicação');
+    }
+  });
 });
 
 // Iniciar servidor
