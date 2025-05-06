@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 const memoriesRouter = require('./routes/memories');
 
 dotenv.config();
@@ -21,12 +22,15 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/memory-ii
 .then(() => console.log('Conectado ao MongoDB'))
 .catch(err => console.error('Erro ao conectar ao MongoDB:', err));
 
-// Rotas
+// Rotas da API
 app.use('/api/memories', memoriesRouter);
 
-// Rota básica
-app.get('/', (req, res) => {
-  res.json({ message: 'API do Memory IIT está funcionando!' });
+// Servir arquivos estáticos do frontend
+app.use(express.static(path.join(__dirname, 'client/dist')));
+
+// Rota para todas as outras requisições
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client/dist', 'index.html'));
 });
 
 // Iniciar servidor
