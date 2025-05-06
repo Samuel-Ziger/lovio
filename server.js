@@ -24,7 +24,6 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/memory-ii
 
 // Servir arquivos estáticos do frontend
 app.use(express.static(path.join(__dirname, 'client/dist')));
-app.use('/assets', express.static(path.join(__dirname, 'client/dist/assets')));
 
 // Rotas da API
 app.use('/api/memories', memoriesRouter);
