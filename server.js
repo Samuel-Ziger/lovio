@@ -2,7 +2,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const path = require('path');
 const memoriesRouter = require('./routes/memories');
 
 dotenv.config();
@@ -25,19 +24,9 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/memory-ii
 // Rotas da API
 app.use('/api/memories', memoriesRouter);
 
-// Servir arquivos estáticos do frontend
-const distPath = path.join(__dirname, 'client', 'dist');
-app.use(express.static(distPath));
-
-// Rota para todas as outras requisições
-app.get('*', (req, res) => {
-  const indexPath = path.join(distPath, 'index.html');
-  res.sendFile(indexPath, (err) => {
-    if (err) {
-      console.error('Erro ao enviar index.html:', err);
-      res.status(500).send('Erro ao carregar a aplicação');
-    }
-  });
+// Rota básica para verificar se a API está funcionando
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', message: 'API está funcionando!' });
 });
 
 // Iniciar servidor
