@@ -1,5 +1,7 @@
 {
   "version": 2,
+  "buildCommand": "cd client && npm install && npm run build && cd ..",
+  "outputDirectory": "client/dist",
   "builds": [
     {
       "src": "server.js",
@@ -10,6 +12,14 @@
     {
       "src": "/api/(.*)",
       "dest": "/server.js"
+    },
+    {
+      "src": "/assets/(.*)",
+      "dest": "/client/dist/assets/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/client/dist/$1"
     },
     {
       "src": "/(.*)",
