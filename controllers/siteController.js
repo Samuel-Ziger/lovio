@@ -1,71 +1,66 @@
+const express = require('express');
 const { MercadoPagoConfig, Preference } = require('mercadopago');
 const { v4: uuidv4 } = require('uuid');
 const config = require('../config/config');
+
+const router = express.Router();
 
 // Banco de dados em memória
 const sites = new Map();
 
 // Configuração do Mercado Pago
 const client = new MercadoPagoConfig({ 
-    accessToken: 'APP_USR-4868459967001491-051003-be2cae39860e8eb714f547165324245f-305462343'
+    accessToken: config.mercadoPago.accessToken
 });
 
 // Criar preferência de pagamento
-exports.criarPreferencia = async (req, res) => {
+router.post('/pagamento/preferencia', async (req, res) => {
   try {
-    console.log('Requisição recebida:', req);
-    const { dados_site } = req.body;
+    const { siteData } = req.body;
+    console.log('Dados recebidos:', siteData);
 
     // Definir preço baseado no plano
-    let preco;
-    switch (dados_site.plano) {
+    let price;
+    switch(siteData.plan) {
       case 'basic':
-        preco = 1.00;
+        price = 1.00;
         break;
       case 'premium':
-        preco = 39.90;
+        price = 49.90;
         break;
       case 'deluxe':
-        preco = 59.90;
+        price = 99.90;
         break;
       default:
-        preco = 1.00;
+        price = 1.00;
     }
 
-    const agora = new Date();
-    const trintaMinutosDepois = new Date(agora.getTime() + 30 * 60 * 1000);
-
-    const preferencia = {
-      items: [{
-        title: `Site ${dados_site.nome_site} - Plano ${dados_site.plano}`,
-        unit_price: preco,
-        quantity: 1,
-        currency_id: 'BRL'
-      }],
-      back_urls: {
-        success: 'http://localhost:5173/sucesso',
-        failure: 'http://localhost:5173/erro',
-        pending: 'http://localhost:5173/pendente'
-      },
-      external_reference: dados_site.slug,
-      notification_url: 'http://localhost:5001/api/pagamento/webhook',
-      statement_descriptor: 'MEMORIA SITE',
-      expires: true,
-      expiration_date_from: agora.toISOString(),
-      expiration_date_to: trintaMinutosDepois.toISOString(),
-      payment_methods: {
-        excluded_payment_types: [],
-        installments: 1
-      }
-    };
-
-    console.log('Criando preferência com os dados:', preferencia);
-
     const preference = new Preference(client);
-    const response = await preference.create({ body: preferencia });
-    
-    console.log('Preferência criada com sucesso:', response);
-    res.json(response);
+    const result = await preference.create({
+      items: [
+        {
+          title: `Site ${siteData.plan.charAt(0).toUpperCase() + siteData.plan.slice(1)}`,
+          unit_price: price,
+          quantity: 1,
+          currency_id: "BRL",
+          description: `Criação de site no plano ${siteData.plan}`
+        }
+      ],
+      back_urls: {
+        success: `${config.frontendUrl}/success`,
+        failure: `${config.frontendUrl}/failure`,
+        pending: `${config.frontendUrl}/pending`
+      },
+      auto_return: "approved",
+      notification_url: `${config.backendUrl}/api/pagamento/webhook`,
+      external_reference: siteData.slug,
+      expires: true,
+      expiration_date_from: new Date().toISOString(),
+      expiration_date_to: new Date(Date.now() + 30 * 60000).toISOString()
+    });
+
+    console.log('Preferência criada:', result);
+    res.json(result);
   } catch (error) {
     console.error('Erro ao criar preferência:', error);
     res.status(500).json({ 
@@ -73,7 +68,7 @@ exports.criarPreferencia = async (req, res) => {
       details: error.message 
     });
   }
-};
+});
 
 // Webhook do Mercado Pago
 exports.webhook = async (req, res) => {
