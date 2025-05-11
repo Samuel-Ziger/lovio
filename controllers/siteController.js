@@ -15,7 +15,9 @@ console.log('Configuração do Mercado Pago:', {
     accessToken: config.mercadoPago.accessToken,
     publicKey: config.mercadoPago.publicKey,
     clientId: config.mercadoPago.clientId,
-    clientSecret: config.mercadoPago.clientSecret
+    clientSecret: config.mercadoPago.clientSecret,
+    frontendUrl: config.frontendUrl,
+    backendUrl: config.backendUrl
 });
 
 // Criar preferência de pagamento
@@ -43,6 +45,10 @@ exports.criarPreferencia = async (req, res) => {
     const agora = new Date();
     const trintaMinutosDepois = new Date(agora.getTime() + 30 * 60 * 1000);
 
+    // URLs fixas para produção
+    const frontendUrl = 'https://presentenamorados.vercel.app';
+    const backendUrl = 'https://presentenamorados.vercel.app';
+
     const preferencia = {
       items: [{
         title: `Site ${dados_site.nome_site} - Plano ${dados_site.plano}`,
@@ -51,12 +57,12 @@ exports.criarPreferencia = async (req, res) => {
         currency_id: 'BRL'
       }],
       back_urls: {
-        success: `${config.frontendUrl}/pagamento/sucesso`,
-        failure: `${config.frontendUrl}/pagamento/erro`,
-        pending: `${config.frontendUrl}/pagamento/pendente`
+        success: `${frontendUrl}/pagamento/sucesso`,
+        failure: `${frontendUrl}/pagamento/erro`,
+        pending: `${frontendUrl}/pagamento/pendente`
       },
       external_reference: dados_site.slug,
-      notification_url: `${config.backendUrl}/api/pagamento/webhook`,
+      notification_url: `${backendUrl}/api/pagamento/webhook`,
       statement_descriptor: 'MEMORIA SITE',
       expires: true,
       expiration_date_from: agora.toISOString(),
@@ -69,10 +75,10 @@ exports.criarPreferencia = async (req, res) => {
 
     console.log('Criando preferência com os dados:', JSON.stringify(preferencia, null, 2));
     console.log('URLs configuradas:', {
-      success: `${config.frontendUrl}/pagamento/sucesso`,
-      failure: `${config.frontendUrl}/pagamento/erro`,
-      pending: `${config.frontendUrl}/pagamento/pendente`,
-      webhook: `${config.backendUrl}/api/pagamento/webhook`
+      success: `${frontendUrl}/pagamento/sucesso`,
+      failure: `${frontendUrl}/pagamento/erro`,
+      pending: `${frontendUrl}/pagamento/pendente`,
+      webhook: `${backendUrl}/api/pagamento/webhook`
     });
 
     const preference = new Preference(client);
