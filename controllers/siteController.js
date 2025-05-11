@@ -10,10 +10,18 @@ const client = new MercadoPagoConfig({
     accessToken: config.mercadoPago.accessToken
 });
 
+// Log da configuração do Mercado Pago
+console.log('Configuração do Mercado Pago:', {
+    accessToken: config.mercadoPago.accessToken,
+    publicKey: config.mercadoPago.publicKey,
+    clientId: config.mercadoPago.clientId,
+    clientSecret: config.mercadoPago.clientSecret
+});
+
 // Criar preferência de pagamento
 exports.criarPreferencia = async (req, res) => {
   try {
-    console.log('Requisição recebida:', req);
+    console.log('Requisição recebida:', req.body);
     const { dados_site } = req.body;
 
     // Definir preço baseado no plano
@@ -59,15 +67,26 @@ exports.criarPreferencia = async (req, res) => {
       }
     };
 
-    console.log('Criando preferência com os dados:', preferencia);
+    console.log('Criando preferência com os dados:', JSON.stringify(preferencia, null, 2));
+    console.log('URLs configuradas:', {
+      success: `${config.frontendUrl}/pagamento/sucesso`,
+      failure: `${config.frontendUrl}/pagamento/erro`,
+      pending: `${config.frontendUrl}/pagamento/pendente`,
+      webhook: `${config.backendUrl}/api/pagamento/webhook`
+    });
 
     const preference = new Preference(client);
     const response = await preference.create({ body: preferencia });
     
-    console.log('Preferência criada com sucesso:', response);
+    console.log('Preferência criada com sucesso:', JSON.stringify(response, null, 2));
     res.json(response);
   } catch (error) {
     console.error('Erro ao criar preferência:', error);
+    console.error('Detalhes do erro:', {
+      message: error.message,
+      stack: error.stack,
+      response: error.response?.data
+    });
     res.status(500).json({ 
       error: 'Erro ao criar preferência de pagamento',
       details: error.message 
