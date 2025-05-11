@@ -6,6 +6,7 @@ const cors = require('cors');
 const path = require('path');
 const config = require('./config/config');
 const siteRoutes = require('./routes/siteRoutes');
+const siteController = require('./controllers/siteController');
 
 const app = express();
 
@@ -70,6 +71,11 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Rotas adicionais
+app.post('/api/pagamento/preferencia', siteController.criarPreferencia);
+app.post('/api/pagamento/webhook', siteController.webhook);
+app.get('/api/site/:slug', siteController.buscarSitePorSlug);
+
 // Servir arquivos estáticos do frontend em produção
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'client/build')));
@@ -90,8 +96,9 @@ app.use((err, req, res, next) => {
 
 // Iniciar servidor com tratamento de erros
 try {
-  app.listen(config.port, () => {
-    console.log(`Servidor rodando na porta ${config.port}`);
+  const PORT = process.env.PORT || 5001;
+  app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
     console.log(`URL do frontend: ${config.frontendUrl}`);
     console.log('Token do Mercado Pago configurado:', !!config.mercadoPago.accessToken);
     console.log('Configurações CORS:', {
