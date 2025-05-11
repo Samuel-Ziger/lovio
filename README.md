@@ -65,7 +65,7 @@ npm run dev
 - Acesse: http://localhost:5173
 - Preencha os dados do site
 - Selecione um plano
-- Clique em "Criar Site."
+- Clique em "Criar Site"
 
 ### 5. Testando Pagamentos
 1. Use os cartões de teste:
