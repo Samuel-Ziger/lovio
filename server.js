@@ -12,7 +12,7 @@ const app = express();
 
 // Configurações de CORS
 app.use(cors({
-  origin: [config.frontendUrl, 'http://localhost:3000'],
+  origin: [config.frontendUrl, 'http://localhost:3000', 'http://localhost:5173'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
@@ -37,8 +37,7 @@ app.use(express.json());
 
 // Log de requisições
 app.use((req, res, next) => {
-  const agora = new Date();
-  console.log(`[${agora.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}] - ${req.method} ${req.url}`);
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
   console.log('Headers:', req.headers);
   console.log('Body:', req.body);
   next();
@@ -76,39 +75,33 @@ app.post('/api/pagamento/preferencia', siteController.criarPreferencia);
 app.post('/api/pagamento/webhook', siteController.webhook);
 app.get('/api/site/:slug', siteController.buscarSitePorSlug);
 
-// Servir arquivos estáticos do frontend em produção
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'client/build')));
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
-  });
-}
+// Servir arquivos estáticos do frontend
+app.use(express.static(path.join(__dirname, 'client/dist')));
+
+// Rota para todas as outras requisições
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client/dist/index.html'));
+});
 
 // Tratamento de erros
 app.use((err, req, res, next) => {
-  console.error('Erro no servidor:', err);
+  console.error('Erro:', err);
   res.status(500).json({ 
     error: 'Erro interno do servidor',
-    message: err.message,
-    timestamp: new Date().toISOString()
+    message: err.message
   });
 });
 
-// Iniciar servidor com tratamento de erros
-try {
-  const PORT = process.env.PORT || 5001;
-  app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
-    console.log(`URL do frontend: ${config.frontendUrl}`);
-    console.log('Token do Mercado Pago configurado:', !!config.mercadoPago.accessToken);
-    console.log('Configurações CORS:', {
-      origin: [config.frontendUrl, 'http://localhost:3000'],
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization'],
-      credentials: true
-    });
+// Iniciar servidor
+const PORT = process.env.PORT || 5001;
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+  console.log(`URL do frontend: ${config.frontendUrl}`);
+  console.log('Token do Mercado Pago configurado:', !!config.mercadoPago.accessToken);
+  console.log('Configurações CORS:', {
+    origin: [config.frontendUrl, 'http://localhost:3000', 'http://localhost:5173'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
   });
-} catch (error) {
-  console.error('Erro ao iniciar o servidor:', error);
-  process.exit(1);
-} 
+}); 
