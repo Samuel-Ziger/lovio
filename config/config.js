@@ -8,6 +8,6 @@ module.exports = {
     accessToken: 'APP_USR-4868459967001491-051003-be2cae39860e8eb714f547165324245f-305462343',
     publicKey: 'APP_USR-fc533834-0b64-46f1-88ff-f4a610774e2d',
     clientId: process.env.MERCADO_PAGO_CLIENT_ID,
-    clientSecret: process.env.MERCADO_PAGO_CLIENT_SECRET
+    clientSecret: 'a6SCnm9JWKNBZuqVStUGOEvB4u0Reqpm'
   }
 }; 

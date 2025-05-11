@@ -7,7 +7,7 @@ const sites = new Map();
 
 // Configuração do Mercado Pago
 const client = new MercadoPagoConfig({ 
-    accessToken: 'APP_USR-4868459967001491-051003-be2cae39860e8eb714f547165324245f-305462343'
+    accessToken: config.mercadoPago.accessToken
 });
 
 // Criar preferência de pagamento
@@ -43,12 +43,12 @@ exports.criarPreferencia = async (req, res) => {
         currency_id: 'BRL'
       }],
       back_urls: {
-        success: 'http://localhost:5173/sucesso',
-        failure: 'http://localhost:5173/erro',
-        pending: 'http://localhost:5173/pendente'
+        success: `${config.frontendUrl}/pagamento/sucesso`,
+        failure: `${config.frontendUrl}/pagamento/erro`,
+        pending: `${config.frontendUrl}/pagamento/pendente`
       },
       external_reference: dados_site.slug,
-      notification_url: 'http://localhost:5001/api/pagamento/webhook',
+      notification_url: `${config.backendUrl}/api/pagamento/webhook`,
       statement_descriptor: 'MEMORIA SITE',
       expires: true,
       expiration_date_from: agora.toISOString(),
