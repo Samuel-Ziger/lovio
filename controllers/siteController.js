@@ -20,7 +20,7 @@ exports.criarPreferencia = async (req, res) => {
     let preco;
     switch (dados_site.plano) {
       case 'basic':
-        preco = 19.90;
+        preco = 1.00;
         break;
       case 'premium':
         preco = 39.90;
@@ -29,7 +29,7 @@ exports.criarPreferencia = async (req, res) => {
         preco = 59.90;
         break;
       default:
-        preco = 19.90;
+        preco = 1.00;
     }
 
     const agora = new Date();

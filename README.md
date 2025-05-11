@@ -192,7 +192,7 @@ npm run dev
 
 ## 📝 Planos Disponíveis
 
-- Basic: R$ 19,90
+- Basic: R$ 1,00
 - Premium: R$ 39,90
 - Deluxe: R$ 59,90
 

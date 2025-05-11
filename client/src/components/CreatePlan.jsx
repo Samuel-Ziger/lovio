@@ -34,7 +34,7 @@ const plans = [
   {
     id: 'basic',
     name: 'Básico',
-    price: 'R$ 19,90',
+    price: 'R$ 1,00',
     features: [
       'Página personalizada',
       'Até 5 fotos',

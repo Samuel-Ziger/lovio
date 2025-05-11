@@ -2,33 +2,21 @@
   "version": 2,
   "builds": [
     {
-      "src": "index.js",
+      "src": "server.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "client/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "build"
-      }
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "index.js"
+      "dest": "/server.js"
+    },
+    {
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
-      "dest": "client/build/$1"
+      "dest": "/server.js"
     }
-  ],
-  "env": {
-    "PORT": "5001",
-    "FRONTEND_URL": "https://seu-frontend.vercel.app",
-    "MERCADO_PAGO_ACCESS_TOKEN": "@mercado_pago_access_token",
-    "MERCADO_PAGO_PUBLIC_KEY": "@mercado_pago_public_key",
-    "MERCADO_PAGO_CLIENT_ID": "@mercado_pago_client_id",
-    "MERCADO_PAGO_CLIENT_SECRET": "@mercado_pago_client_secret"
-  }
+  ]
 } 
