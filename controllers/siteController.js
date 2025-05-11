@@ -1,99 +1,169 @@
 const mercadopago = require('mercadopago');
-const Site = require('../models/Site');
-const { addYears, addMonths } = require('date-fns');
+const { v4: uuidv4 } = require('uuid');
+const config = require('../config/config');
 
-// Configuração do Mercado Pago
-mercadopago.configure({
-  access_token: 'APP_USR-4868459967001491-051003-be2cae39860e8eb714f547165324245f-305462343'
-});
+// Banco de dados em memória
+const sites = new Map();
 
-const siteController = {
-  // Criar preferência de pagamento
-  async criarPreferencia(req, res) {
-    try {
-      const { plano, dados_site } = req.body;
-      
-      const preferencia = {
-        items: [{
-          title: `Plano ${plano} - Namoro Memória`,
-          unit_price: plano === 'anual' ? 99.90 : 199.90,
-          quantity: 1,
-          currency_id: 'BRL'
-        }],
-        back_urls: {
-          success: `${process.env.FRONTEND_URL}/pagamento/sucesso`,
-          failure: `${process.env.FRONTEND_URL}/pagamento/erro`
-        },
-        auto_return: 'approved',
-        external_reference: JSON.stringify(dados_site)
-      };
+// Criar preferência de pagamento
+exports.criarPreferencia = async (req, res) => {
+  try {
+    console.log('Requisição recebida:', {
+      body: req.body,
+      headers: req.headers
+    });
 
-      const response = await mercadopago.preferences.create(preferencia);
-      res.json({ init_point: response.body.init_point });
-    } catch (error) {
-      console.error('Erro ao criar preferência:', error);
-      res.status(500).json({ error: 'Erro ao processar pagamento' });
+    // Configurar Mercado Pago
+    mercadopago.configure({
+      access_token: config.mercadoPago.accessToken
+    });
+
+    const { dados_site } = req.body;
+    console.log('Dados do site recebidos:', dados_site);
+
+    if (!dados_site) {
+      console.error('Dados do site não fornecidos');
+      return res.status(400).json({ error: 'Dados do site não fornecidos' });
     }
-  },
 
-  // Webhook do Mercado Pago
-  async webhook(req, res) {
-    try {
-      const { type, data } = req.body;
-
-      if (type === 'payment') {
-        const payment = await mercadopago.payment.findById(data.id);
-        
-        if (payment.status === 'approved') {
-          const dados_site = JSON.parse(payment.external_reference);
-          const plano = dados_site.plano;
-          
-          // Calcular data de expiração
-          const data_criacao = new Date();
-          const data_expiracao = plano === 'anual' 
-            ? addYears(data_criacao, 1)
-            : addYears(data_criacao, 100); // Vitalício
-
-          // Criar site no banco
-          await Site.create({
-            ...dados_site,
-            data_criacao,
-            data_expiracao,
-            status: 'ativo'
-          });
-
-          res.status(200).send('OK');
-        }
-      }
-    } catch (error) {
-      console.error('Erro no webhook:', error);
-      res.status(500).json({ error: 'Erro ao processar webhook' });
+    // Validar dados obrigatórios
+    if (!dados_site.plano || !dados_site.nome_site) {
+      console.error('Dados obrigatórios faltando:', dados_site);
+      return res.status(400).json({ error: 'Dados obrigatórios não fornecidos' });
     }
-  },
 
-  // Buscar site por slug
-  async buscarSite(req, res) {
-    try {
-      const { slug } = req.params;
-      const site = await Site.findOne({ where: { slug } });
-
-      if (!site) {
-        return res.status(404).json({ error: 'Site não encontrado' });
-      }
-
-      // Verificar expiração
-      if (site.status === 'expirado' || new Date() > site.data_expiracao) {
-        site.status = 'expirado';
-        await site.save();
-        return res.status(410).json({ error: 'Site expirado' });
-      }
-
-      res.json(site);
-    } catch (error) {
-      console.error('Erro ao buscar site:', error);
-      res.status(500).json({ error: 'Erro ao buscar site' });
+    // Definir preço baseado no plano
+    let preco;
+    switch (dados_site.plano) {
+      case 'basic':
+        preco = 19.90;
+        break;
+      case 'premium':
+        preco = 39.90;
+        break;
+      case 'deluxe':
+        preco = 59.90;
+        break;
+      default:
+        console.error('Plano inválido:', dados_site.plano);
+        return res.status(400).json({ error: 'Plano inválido' });
     }
+
+    // Criar preferência de pagamento
+    const preferencia = {
+      items: [{
+        title: `Site ${dados_site.nome_site} - Plano ${dados_site.plano}`,
+        unit_price: preco,
+        quantity: 1,
+        currency_id: 'BRL'
+      }],
+      back_urls: {
+        success: `${config.frontendUrl}/pagamento/sucesso`,
+        failure: `${config.frontendUrl}/pagamento/erro`,
+        pending: `${config.frontendUrl}/pagamento/pendente`
+      },
+      auto_return: 'approved',
+      external_reference: dados_site.slug,
+      notification_url: `${config.backendUrl}/api/pagamento/webhook`
+    };
+
+    console.log('Criando preferência:', preferencia);
+    const response = await mercadopago.preferences.create(preferencia);
+    console.log('Resposta do Mercado Pago:', response);
+
+    // Salvar dados do site temporariamente
+    const siteId = uuidv4();
+    sites.set(siteId, {
+      ...dados_site,
+      id: siteId,
+      status: 'pendente',
+      data_criacao: new Date(),
+      data_expiracao: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 dias
+    });
+
+    console.log('Site salvo:', sites.get(siteId));
+
+    res.json({
+      init_point: response.body.init_point,
+      site_id: siteId
+    });
+  } catch (error) {
+    console.error('Erro ao criar preferência:', error);
+    res.status(500).json({ 
+      error: error.message,
+      details: error.response?.data || error.stack
+    });
   }
 };
 
-module.exports = siteController; 
+// Webhook do Mercado Pago
+exports.webhook = async (req, res) => {
+  try {
+    console.log('Webhook recebido:', req.body);
+
+    // Configurar Mercado Pago
+    mercadopago.configure({
+      access_token: config.mercadoPago.accessToken
+    });
+
+    const { type, data } = req.body;
+
+    if (type === 'payment') {
+      const payment = await mercadopago.payment.findById(data.id);
+      console.log('Pagamento encontrado:', payment.body);
+
+      const siteId = payment.body.external_reference;
+
+      if (payment.body.status === 'approved') {
+        const site = sites.get(siteId);
+        if (site) {
+          site.status = 'ativo';
+          sites.set(siteId, site);
+          console.log('Site atualizado:', site);
+        }
+      }
+    }
+
+    res.status(200).send('OK');
+  } catch (error) {
+    console.error('Erro no webhook:', error);
+    res.status(500).json({ 
+      error: error.message,
+      details: error.response?.data || error.stack
+    });
+  }
+};
+
+// Buscar site por slug
+exports.buscarSitePorSlug = (req, res) => {
+  try {
+    const { slug } = req.params;
+    console.log('Buscando site por slug:', slug);
+
+    const site = Array.from(sites.values()).find(s => s.slug === slug);
+
+    if (!site) {
+      console.log('Site não encontrado');
+      return res.status(404).json({ error: 'Site não encontrado' });
+    }
+
+    if (site.status !== 'ativo') {
+      console.log('Site não está ativo:', site.status);
+      return res.status(403).json({ error: 'Site não está ativo' });
+    }
+
+    if (new Date() > site.data_expiracao) {
+      console.log('Site expirado');
+      return res.status(403).json({ error: 'Site expirado' });
+    }
+
+    console.log('Site encontrado:', site);
+    res.json(site);
+  } catch (error) {
+    console.error('Erro ao buscar site:', error);
+    res.status(500).json({ 
+      error: error.message,
+      details: error.stack
+    });
+  }
+}; 

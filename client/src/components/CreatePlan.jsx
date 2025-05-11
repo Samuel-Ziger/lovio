@@ -96,6 +96,16 @@ const CreatePlan = () => {
     const savedImages = localStorage.getItem('images');
     const savedEmojis = localStorage.getItem('emojis');
     const savedSpotifyUrl = localStorage.getItem('spotifyUrl');
+
+    console.log('Dados recuperados no useEffect:', {
+      savedTitle,
+      savedDate,
+      savedMessage,
+      savedImages,
+      savedEmojis,
+      savedSpotifyUrl
+    });
+
     if (savedTitle) setTitle(savedTitle);
     if (savedDate) setDate(savedDate);
     if (savedMessage) setMessage(savedMessage);
@@ -106,7 +116,44 @@ const CreatePlan = () => {
 
   const handleNext = () => {
     if (selectedPlanIndex !== null) {
-      localStorage.setItem('plan', plans[selectedPlanIndex].id);
+      const selectedPlan = plans[selectedPlanIndex].id;
+      console.log('Salvando plano no localStorage:', selectedPlan);
+      localStorage.setItem('plan', selectedPlan);
+      
+      // Verificar se todos os dados necessários estão presentes
+      const title = localStorage.getItem('title');
+      const date = localStorage.getItem('date');
+      const message = localStorage.getItem('message');
+      const images = localStorage.getItem('images');
+      const emojis = localStorage.getItem('emojis');
+      const spotifyUrl = localStorage.getItem('spotifyUrl');
+      
+      console.log('Dados no localStorage antes da validação:', {
+        plan: selectedPlan,
+        title,
+        date,
+        message,
+        images,
+        emojis,
+        spotifyUrl
+      });
+
+      // Verificar se os dados estão vazios ou undefined
+      if (!title || title === 'undefined' || title === 'null') {
+        alert('Por favor, preencha o título.');
+        return;
+      }
+      if (!date || date === 'undefined' || date === 'null') {
+        alert('Por favor, preencha a data.');
+        return;
+      }
+      if (!message || message === 'undefined' || message === 'null') {
+        alert('Por favor, preencha a mensagem.');
+        return;
+      }
+
+      // Se chegou aqui, todos os dados estão preenchidos
+      console.log('Todos os dados estão preenchidos, redirecionando para pagamento...');
       navigate('/create/payment');
     }
   };

@@ -57,6 +57,15 @@ const CreateTitle = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (formData.title && formData.startDate) {
+      // Salvar dados no localStorage
+      localStorage.setItem('title', formData.title);
+      localStorage.setItem('date', formData.startDate);
+      
+      console.log('Dados salvos no localStorage:', {
+        title: formData.title,
+        date: formData.startDate
+      });
+
       navigate(`/create/message?url=${customUrl}&title=${encodeURIComponent(formData.title)}&date=${formData.startDate}`);
     }
   };

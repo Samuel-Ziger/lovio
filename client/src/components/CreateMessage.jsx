@@ -55,7 +55,20 @@ const CreateMessage = () => {
   };
 
   const handleNext = () => {
+    console.log('Salvando mensagem no localStorage:', message);
     localStorage.setItem('message', message);
+    
+    // Verificar se os dados foram salvos
+    const savedTitle = localStorage.getItem('title');
+    const savedDate = localStorage.getItem('date');
+    const savedMessage = localStorage.getItem('message');
+    
+    console.log('Dados no localStorage após salvar mensagem:', {
+      title: savedTitle,
+      date: savedDate,
+      message: savedMessage
+    });
+
     navigate('/create/image');
   };
 

@@ -5,10 +5,10 @@ const siteController = require('../controllers/siteController');
 // Rota para criar preferência de pagamento
 router.post('/pagamento/preferencia', siteController.criarPreferencia);
 
-// Webhook do Mercado Pago
+// Rota para webhook do Mercado Pago
 router.post('/pagamento/webhook', siteController.webhook);
 
 // Rota para buscar site por slug
-router.get('/site/:slug', siteController.buscarSite);
+router.get('/site/:slug', siteController.buscarSitePorSlug);
 
 module.exports = router; 

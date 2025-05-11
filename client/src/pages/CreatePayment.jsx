@@ -13,6 +13,15 @@ import {
 } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 
+// Configuração do axios
+const api = axios.create({
+  baseURL: 'http://localhost:5001/api',
+  timeout: 10000, // 10 segundos
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
 const CreatePayment = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -24,6 +33,16 @@ const CreatePayment = () => {
         setLoading(true);
         setError(null);
 
+        // Verificar se o servidor está online
+        try {
+          console.log('Verificando saúde do servidor...');
+          const healthCheck = await api.get('/health');
+          console.log('Servidor online:', healthCheck.data);
+        } catch (error) {
+          console.error('Erro ao verificar saúde do servidor:', error);
+          throw new Error('Servidor indisponível. Por favor, tente novamente mais tarde.');
+        }
+
         // Recuperar dados do localStorage
         const plan = localStorage.getItem('plan');
         const title = localStorage.getItem('title');
@@ -32,6 +51,27 @@ const CreatePayment = () => {
         const images = JSON.parse(localStorage.getItem('images') || '[]');
         const emojis = JSON.parse(localStorage.getItem('emojis') || '[]');
         const spotifyUrl = localStorage.getItem('spotifyUrl');
+
+        console.log('Dados recuperados do localStorage:', {
+          plan,
+          title,
+          date,
+          message,
+          images,
+          emojis,
+          spotifyUrl
+        });
+
+        // Validar dados obrigatórios
+        const camposFaltantes = [];
+        if (!plan) camposFaltantes.push('plano');
+        if (!title) camposFaltantes.push('título');
+        if (!date) camposFaltantes.push('data');
+        if (!message) camposFaltantes.push('mensagem');
+
+        if (camposFaltantes.length > 0) {
+          throw new Error(`Campos obrigatórios não preenchidos: ${camposFaltantes.join(', ')}. Por favor, volte e preencha todos os campos.`);
+        }
 
         // Preparar dados para o backend
         const dados_site = {
@@ -48,14 +88,34 @@ const CreatePayment = () => {
           })
         };
 
+        console.log('Enviando dados para o backend:', dados_site);
+
         // Criar preferência de pagamento
-        const response = await axios.post('/api/pagamento/preferencia', dados_site);
+        console.log('Criando preferência de pagamento...');
+        const response = await api.post('/pagamento/preferencia', { dados_site });
+        console.log('Resposta do servidor:', response.data);
         
-        // Redirecionar para o checkout do Mercado Pago
-        window.location.href = response.data.init_point;
+        if (response.data && response.data.init_point) {
+          console.log('Redirecionando para:', response.data.init_point);
+          window.location.href = response.data.init_point;
+        } else {
+          throw new Error('Resposta inválida do servidor');
+        }
       } catch (error) {
         console.error('Erro ao iniciar pagamento:', error);
-        setError('Erro ao processar pagamento. Por favor, tente novamente.');
+        if (error.response) {
+          // O servidor respondeu com um status de erro
+          console.error('Resposta do servidor:', error.response.data);
+          setError(error.response.data.error || error.response.data.message || 'Erro ao processar pagamento');
+        } else if (error.request) {
+          // A requisição foi feita mas não houve resposta
+          console.error('Sem resposta do servidor:', error.request);
+          setError('Servidor não está respondendo. Por favor, tente novamente mais tarde.');
+        } else {
+          // Erro ao configurar a requisição
+          console.error('Erro na requisição:', error.message);
+          setError(error.message || 'Erro ao processar pagamento. Por favor, tente novamente.');
+        }
       } finally {
         setLoading(false);
       }
@@ -102,7 +162,7 @@ const CreatePayment = () => {
             <CircularProgress sx={{ color: '#ff69b4' }} />
           ) : (
             <Typography variant="body1" color="text.secondary">
-              Você será redirecionado para a página de pagamento do Mercado Pago em instantes...
+              {error ? 'Ocorreu um erro ao processar o pagamento.' : 'Você será redirecionado para a página de pagamento do Mercado Pago em instantes...'}
             </Typography>
           )}
         </Box>
