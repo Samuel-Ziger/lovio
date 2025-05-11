@@ -1,36 +1,20 @@
-const mercadopago = require('mercadopago');
+const { MercadoPagoConfig, Preference } = require('mercadopago');
 const { v4: uuidv4 } = require('uuid');
 const config = require('../config/config');
 
 // Banco de dados em memória
 const sites = new Map();
 
+// Configuração do Mercado Pago
+const client = new MercadoPagoConfig({ 
+    accessToken: 'APP_USR-4868459967001491-051003-be2cae39860e8eb714f547165324245f-305462343'
+});
+
 // Criar preferência de pagamento
 exports.criarPreferencia = async (req, res) => {
   try {
-    console.log('Requisição recebida:', {
-      body: req.body,
-      headers: req.headers
-    });
-
-    // Configurar Mercado Pago
-    mercadopago.configure({
-      access_token: config.mercadoPago.accessToken
-    });
-
+    console.log('Requisição recebida:', req);
     const { dados_site } = req.body;
-    console.log('Dados do site recebidos:', dados_site);
-
-    if (!dados_site) {
-      console.error('Dados do site não fornecidos');
-      return res.status(400).json({ error: 'Dados do site não fornecidos' });
-    }
-
-    // Validar dados obrigatórios
-    if (!dados_site.plano || !dados_site.nome_site) {
-      console.error('Dados obrigatórios faltando:', dados_site);
-      return res.status(400).json({ error: 'Dados obrigatórios não fornecidos' });
-    }
 
     // Definir preço baseado no plano
     let preco;
@@ -45,11 +29,12 @@ exports.criarPreferencia = async (req, res) => {
         preco = 59.90;
         break;
       default:
-        console.error('Plano inválido:', dados_site.plano);
-        return res.status(400).json({ error: 'Plano inválido' });
+        preco = 19.90;
     }
 
     const agora = new Date();
+    const trintaMinutosDepois = new Date(agora.getTime() + 30 * 60 * 1000);
+
     const preferencia = {
       items: [{
         title: `Site ${dados_site.nome_site} - Plano ${dados_site.plano}`,
@@ -58,43 +43,34 @@ exports.criarPreferencia = async (req, res) => {
         currency_id: 'BRL'
       }],
       back_urls: {
-        success: `${config.frontendUrl}/pagamento/sucesso`,
-        failure: `${config.frontendUrl}/pagamento/erro`,
-        pending: `${config.frontendUrl}/pagamento/pendente`
+        success: 'http://localhost:5173/sucesso',
+        failure: 'http://localhost:5173/erro',
+        pending: 'http://localhost:5173/pendente'
       },
       external_reference: dados_site.slug,
-      notification_url: `${config.backendUrl}/api/pagamento/webhook`,
+      notification_url: 'http://localhost:5001/api/pagamento/webhook',
       statement_descriptor: 'MEMORIA SITE',
       expires: true,
-      expiration_date_from: agora.toISOString().replace('Z', '-03:00'),
-      expiration_date_to: new Date(agora.getTime() + 30 * 60 * 1000).toISOString().replace('Z', '-03:00') // 30 minutos
+      expiration_date_from: agora.toISOString(),
+      expiration_date_to: trintaMinutosDepois.toISOString(),
+      payment_methods: {
+        excluded_payment_types: [],
+        installments: 1
+      }
     };
 
-    console.log('Criando preferência:', preferencia);
-    const response = await mercadopago.preferences.create(preferencia);
-    console.log('Resposta do Mercado Pago:', response);
+    console.log('Criando preferência com os dados:', preferencia);
 
-    // Salvar dados do site temporariamente
-    const siteId = uuidv4();
-    sites.set(siteId, {
-      ...dados_site,
-      id: siteId,
-      status: 'pendente',
-      data_criacao: new Date(),
-      data_expiracao: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 dias
-    });
-
-    console.log('Site salvo:', sites.get(siteId));
-
-    res.json({
-      init_point: response.body.init_point,
-      site_id: siteId
-    });
+    const preference = new Preference(client);
+    const response = await preference.create({ body: preferencia });
+    
+    console.log('Preferência criada com sucesso:', response);
+    res.json(response);
   } catch (error) {
     console.error('Erro ao criar preferência:', error);
     res.status(500).json({ 
-      error: error.message,
-      details: error.response?.data || error.stack
+      error: 'Erro ao criar preferência de pagamento',
+      details: error.message 
     });
   }
 };
