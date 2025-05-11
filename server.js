@@ -11,9 +11,10 @@ const app = express();
 
 // Configurações de CORS
 app.use(cors({
-  origin: config.frontendUrl,
+  origin: ['http://localhost:5173', 'http://localhost:3000'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 
 // Middleware para parsing de JSON
@@ -22,7 +23,14 @@ app.use(express.json());
 // Log de requisições
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  console.log('Headers:', req.headers);
+  console.log('Body:', req.body);
   next();
+});
+
+// Rota de teste
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'API funcionando!' });
 });
 
 // Rotas da API
@@ -65,6 +73,12 @@ try {
     console.log(`Servidor rodando na porta ${config.port}`);
     console.log(`URL do frontend: ${config.frontendUrl}`);
     console.log('Token do Mercado Pago configurado:', !!config.mercadoPago.accessToken);
+    console.log('Configurações CORS:', {
+      origin: ['http://localhost:5173', 'http://localhost:3000'],
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+      credentials: true
+    });
   });
 } catch (error) {
   console.error('Erro ao iniciar o servidor:', error);

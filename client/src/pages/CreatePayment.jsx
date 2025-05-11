@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { FaSpinner } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import config from '../config/config';
 import {
   Container,
   Paper,
@@ -13,109 +16,89 @@ import {
 } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 
-// Configuração do axios
-const api = axios.create({
-  baseURL: 'http://localhost:5001/api',
-  timeout: 10000, // 10 segundos
-  headers: {
-    'Content-Type': 'application/json'
-  }
-});
-
 const CreatePayment = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const iniciarPagamento = async () => {
       try {
-        setLoading(true);
-        setError(null);
+        console.log('Testando conexão com o servidor...');
+        // Teste de conexão
+        const testResponse = await axios.get(`${config.backendUrl}/api/test`, {
+          withCredentials: true
+        });
+        console.log('Teste de conexão:', testResponse.data);
 
-        // Verificar se o servidor está online
-        try {
-          console.log('Verificando saúde do servidor...');
-          const healthCheck = await api.get('/health');
-          console.log('Servidor online:', healthCheck.data);
-        } catch (error) {
-          console.error('Erro ao verificar saúde do servidor:', error);
-          throw new Error('Servidor indisponível. Por favor, tente novamente mais tarde.');
-        }
+        // Verificar saúde do servidor
+        console.log('Verificando saúde do servidor...');
+        const healthResponse = await axios.get(`${config.backendUrl}/api/health`, {
+          withCredentials: true
+        });
+        console.log('Servidor online:', healthResponse.data);
 
         // Recuperar dados do localStorage
-        const plan = localStorage.getItem('plan');
-        const title = localStorage.getItem('title');
-        const date = localStorage.getItem('date');
-        const message = localStorage.getItem('message');
-        const images = JSON.parse(localStorage.getItem('images') || '[]');
-        const emojis = JSON.parse(localStorage.getItem('emojis') || '[]');
-        const spotifyUrl = localStorage.getItem('spotifyUrl');
+        const dados_site = {
+          plano: localStorage.getItem('plan'),
+          nome_site: localStorage.getItem('title'),
+          slug: localStorage.getItem('title')?.toLowerCase().replace(/\s+/g, '-'),
+          data_inicio: localStorage.getItem('date'),
+          mensagem: localStorage.getItem('message')
+        };
 
-        console.log('Dados recuperados do localStorage:', {
-          plan,
-          title,
-          date,
-          message,
-          images,
-          emojis,
-          spotifyUrl
-        });
+        console.log('Dados recuperados do localStorage:', dados_site);
 
         // Validar dados obrigatórios
-        const camposFaltantes = [];
-        if (!plan) camposFaltantes.push('plano');
-        if (!title) camposFaltantes.push('título');
-        if (!date) camposFaltantes.push('data');
-        if (!message) camposFaltantes.push('mensagem');
-
+        const camposObrigatorios = ['plano', 'nome_site', 'data_inicio', 'mensagem'];
+        const camposFaltantes = camposObrigatorios.filter(campo => !dados_site[campo]);
+        
         if (camposFaltantes.length > 0) {
-          throw new Error(`Campos obrigatórios não preenchidos: ${camposFaltantes.join(', ')}. Por favor, volte e preencha todos os campos.`);
+          throw new Error(`Campos obrigatórios faltando: ${camposFaltantes.join(', ')}`);
         }
 
         // Preparar dados para o backend
-        const dados_site = {
-          plano: plan,
-          nome_site: title,
-          slug: title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-          dados_json: JSON.stringify({
-            titulo: title,
-            data: date,
-            mensagem: message,
-            imagens: images,
-            emojis: emojis,
-            musica: spotifyUrl
-          })
+        const dadosParaBackend = {
+          dados_site
         };
 
-        console.log('Enviando dados para o backend:', dados_site);
+        console.log('Enviando dados para o backend:', dadosParaBackend);
 
         // Criar preferência de pagamento
         console.log('Criando preferência de pagamento...');
-        const response = await api.post('/pagamento/preferencia', { dados_site });
+        const response = await axios.post(
+          `${config.backendUrl}/api/pagamento/preferencia`,
+          dadosParaBackend,
+          {
+            withCredentials: true,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
         console.log('Resposta do servidor:', response.data);
-        
-        if (response.data && response.data.init_point) {
-          console.log('Redirecionando para:', response.data.init_point);
+
+        if (response.data.init_point) {
+          // Redirecionar para o Mercado Pago
           window.location.href = response.data.init_point;
         } else {
-          throw new Error('Resposta inválida do servidor');
+          throw new Error('URL de pagamento não recebida');
         }
       } catch (error) {
         console.error('Erro ao iniciar pagamento:', error);
-        if (error.response) {
-          // O servidor respondeu com um status de erro
-          console.error('Resposta do servidor:', error.response.data);
-          setError(error.response.data.error || error.response.data.message || 'Erro ao processar pagamento');
-        } else if (error.request) {
-          // A requisição foi feita mas não houve resposta
-          console.error('Sem resposta do servidor:', error.request);
-          setError('Servidor não está respondendo. Por favor, tente novamente mais tarde.');
-        } else {
-          // Erro ao configurar a requisição
-          console.error('Erro na requisição:', error.message);
-          setError(error.message || 'Erro ao processar pagamento. Por favor, tente novamente.');
+        console.log('Resposta do servidor:', error.response?.data);
+        
+        let errorMessage = 'Ocorreu um erro ao processar o pagamento.';
+        
+        if (error.response?.data?.error) {
+          errorMessage = error.response.data.error;
+        } else if (error.message) {
+          errorMessage = error.message;
         }
+        
+        setError(errorMessage);
+        toast.error(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -128,66 +111,38 @@ const CreatePayment = () => {
     navigate('/create/plan');
   };
 
-  return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Paper 
-        elevation={3} 
-        sx={{ 
-          p: 4,
-          background: 'linear-gradient(135deg, #fff5f8 0%, #fff 100%)',
-          borderRadius: 2
-        }}
-      >
-        <Typography 
-          variant="h4" 
-          gutterBottom 
-          sx={{ 
-            color: '#ff69b4',
-            fontFamily: 'cursive',
-            textAlign: 'center',
-            mb: 3
-          }}
-        >
-          Processando Pagamento
-        </Typography>
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center">
+          <FaSpinner className="animate-spin text-4xl text-blue-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-700">Processando Pagamento</h2>
+          <p className="text-gray-500 mt-2">Por favor, aguarde...</p>
+        </div>
+      </div>
+    );
+  }
 
-        {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {error}
-          </Alert>
-        )}
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center">
+          <div className="bg-white p-8 rounded-lg shadow-md max-w-md">
+            <h2 className="text-2xl font-bold text-red-500 mb-4">Erro no Pagamento</h2>
+            <p className="text-gray-600 mb-6">{error}</p>
+            <button
+              onClick={handleBack}
+              className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-colors"
+            >
+              Voltar
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-        <Box sx={{ textAlign: 'center', my: 4 }}>
-          {loading ? (
-            <CircularProgress sx={{ color: '#ff69b4' }} />
-          ) : (
-            <Typography variant="body1" color="text.secondary">
-              {error ? 'Ocorreu um erro ao processar o pagamento.' : 'Você será redirecionado para a página de pagamento do Mercado Pago em instantes...'}
-            </Typography>
-          )}
-        </Box>
-
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-          <Button
-            variant="outlined"
-            startIcon={<ArrowBack />}
-            onClick={handleBack}
-            disabled={loading}
-            sx={{
-              color: '#ff69b4',
-              borderColor: '#ff69b4',
-              '&:hover': {
-                borderColor: '#ff1493',
-                backgroundColor: 'rgba(255, 105, 180, 0.04)',
-              },
-            }}
-          >
-            Voltar
-          </Button>
-        </Box>
-      </Paper>
-    </Container>
-  );
+  return null;
 };
 
 export default CreatePayment; 

@@ -49,7 +49,7 @@ exports.criarPreferencia = async (req, res) => {
         return res.status(400).json({ error: 'Plano inválido' });
     }
 
-    // Criar preferência de pagamento
+    const agora = new Date();
     const preferencia = {
       items: [{
         title: `Site ${dados_site.nome_site} - Plano ${dados_site.plano}`,
@@ -62,9 +62,12 @@ exports.criarPreferencia = async (req, res) => {
         failure: `${config.frontendUrl}/pagamento/erro`,
         pending: `${config.frontendUrl}/pagamento/pendente`
       },
-      auto_return: 'approved',
       external_reference: dados_site.slug,
-      notification_url: `${config.backendUrl}/api/pagamento/webhook`
+      notification_url: `${config.backendUrl}/api/pagamento/webhook`,
+      statement_descriptor: 'MEMORIA SITE',
+      expires: true,
+      expiration_date_from: agora.toISOString().replace('Z', '-03:00'),
+      expiration_date_to: new Date(agora.getTime() + 30 * 60 * 1000).toISOString().replace('Z', '-03:00') // 30 minutos
     };
 
     console.log('Criando preferência:', preferencia);

@@ -1,6 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Container, Button, Box } from '@mui/material';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import HomePage from './components/HomePage';
 import CreateUrl from './components/CreateUrl';
@@ -11,6 +13,9 @@ import CreateEmoji from './components/CreateEmoji';
 import MemoryPage from './components/MemoryPage';
 import CreatePlan from './components/CreatePlan';
 import CreatePayment from './pages/CreatePayment';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentError from './pages/PaymentError';
+import PaymentPending from './pages/PaymentPending';
 
 const App = () => {
   return (
@@ -21,6 +26,17 @@ const App = () => {
         minHeight: '100vh',
         background: 'linear-gradient(135deg, #fff5f8 0%, #fff 100%)'
       }}>
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
         <AppBar 
           position="static" 
           sx={{ 
@@ -71,6 +87,9 @@ const App = () => {
             <Route path="/create/plan" element={<CreatePlan />} />
             <Route path="/create/payment" element={<CreatePayment />} />
             <Route path="/memory/:customUrl" element={<MemoryPage />} />
+            <Route path="/pagamento/sucesso" element={<PaymentSuccess />} />
+            <Route path="/pagamento/erro" element={<PaymentError />} />
+            <Route path="/pagamento/pendente" element={<PaymentPending />} />
           </Routes>
         </Box>
       </Box>
