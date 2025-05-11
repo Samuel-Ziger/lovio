@@ -12,7 +12,7 @@ const app = express();
 
 // Configurações de CORS
 app.use(cors({
-  origin: [config.frontendUrl, 'http://localhost:3000', 'http://localhost:5173'],
+  origin: ['https://presentenamorados.vercel.app', 'http://localhost:5173'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
@@ -99,7 +99,7 @@ app.listen(PORT, () => {
   console.log(`URL do frontend: ${config.frontendUrl}`);
   console.log('Token do Mercado Pago configurado:', !!config.mercadoPago.accessToken);
   console.log('Configurações CORS:', {
-    origin: [config.frontendUrl, 'http://localhost:3000', 'http://localhost:5173'],
+    origin: ['https://presentenamorados.vercel.app', 'http://localhost:5173'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
