@@ -10,6 +10,7 @@ import CreateImage from './components/CreateImage';
 import CreateEmoji from './components/CreateEmoji';
 import MemoryPage from './components/MemoryPage';
 import CreatePlan from './components/CreatePlan';
+import CreatePayment from './pages/CreatePayment';
 
 const App = () => {
   return (
@@ -68,6 +69,7 @@ const App = () => {
             <Route path="/create/image" element={<CreateImage />} />
             <Route path="/create/emoji" element={<CreateEmoji />} />
             <Route path="/create/plan" element={<CreatePlan />} />
+            <Route path="/create/payment" element={<CreatePayment />} />
             <Route path="/memory/:customUrl" element={<MemoryPage />} />
           </Routes>
         </Box>
