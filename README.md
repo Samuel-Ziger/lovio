@@ -23,6 +23,7 @@ cd [NOME_DO_DIRETÓRIO]
 2. Instale as dependências:
 ```bash
 npm install
+npm install mercadopago (dentro da pasta client)
 ```
 
 3. Crie o arquivo `.env` na raiz do projeto:
