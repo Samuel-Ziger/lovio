@@ -34,7 +34,7 @@ const plans = [
   {
     id: 'basic',
     name: 'Básico',
-    price: 'R$ 1,00',
+    price: 'R$ 19,99',
     features: [
       'Página personalizada',
       'Até 5 fotos',
@@ -330,39 +330,20 @@ const CreatePlan = () => {
             >
               Voltar
             </Button>
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button
-                variant="outlined"
-                onClick={handleNext}
-                disabled={selectedPlanIndex === null}
-                sx={{
-                  color: '#ff69b4',
-                  borderColor: '#ff69b4',
-                  bgcolor: 'white',
-                  '&:hover': {
-                    borderColor: '#ff1493',
-                    backgroundColor: 'rgba(255, 105, 180, 0.04)',
-                  },
-                  minWidth: 180,
-                }}
-              >
-                Cartão de Crédito
-              </Button>
-              <Button
-                variant="contained"
-                onClick={handleNext}
-                disabled={selectedPlanIndex === null}
-                sx={{
-                  background: 'linear-gradient(45deg, #ff69b4 30%, #ff9eb5 90%)',
-                  '&:hover': {
-                    background: 'linear-gradient(45deg, #ff1493 30%, #ff69b4 90%)',
-                  },
-                  minWidth: 180,
-                }}
-              >
-                PIX
-              </Button>
-            </Box>
+            <Button
+              variant="contained"
+              onClick={handleNext}
+              disabled={selectedPlanIndex === null}
+              sx={{
+                background: 'linear-gradient(45deg, #ff69b4 30%, #ff9eb5 90%)',
+                '&:hover': {
+                  background: 'linear-gradient(45deg, #ff1493 30%, #ff69b4 90%)',
+                },
+                minWidth: 180,
+              }}
+            >
+              PIX
+            </Button>
           </Box>
         </Box>
       </Modal>
