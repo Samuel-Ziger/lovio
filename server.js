@@ -82,10 +82,8 @@ app.get('/api/test', (req, res) => {
     message: 'API funcionando!',
     serverTime: agora.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
     environment: process.env.NODE_ENV,
-    cors: {
-      origin: ['https://presentenamorados.vercel.app', 'http://localhost:5173'],
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
-    }
+    port: process.env.PORT || 5001,
+    cors: corsOptions
   });
 });
 
