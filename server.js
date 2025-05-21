@@ -70,7 +70,8 @@ app.get('/api/health', (req, res) => {
     config: {
       frontendUrl: config.frontendUrl,
       backendUrl: config.backendUrl,
-      hasMpToken: !!config.mercadoPago.accessToken
+      hasMpToken: !!config.mercadoPago.accessToken,
+      cors: corsOptions
     }
   });
 });

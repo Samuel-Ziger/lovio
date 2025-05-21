@@ -27,14 +27,20 @@ const CreatePayment = () => {
         console.log('Testando conexão com o servidor...');
         // Teste de conexão
         const testResponse = await axios.get(`${config.backendUrl}/api/test`, {
-          withCredentials: true
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json'
+          }
         });
         console.log('Teste de conexão:', testResponse.data);
 
         // Verificar saúde do servidor
         console.log('Verificando saúde do servidor...');
         const healthResponse = await axios.get(`${config.backendUrl}/api/health`, {
-          withCredentials: true
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json'
+          }
         });
         console.log('Servidor online:', healthResponse.data);
 
