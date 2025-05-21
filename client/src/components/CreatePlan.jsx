@@ -342,7 +342,7 @@ const CreatePlan = () => {
                 minWidth: 180,
               }}
             >
-              PIX
+              PAGAR
             </Button>
           </Box>
         </Box>
