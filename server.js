@@ -70,8 +70,7 @@ app.get('/api/health', (req, res) => {
     config: {
       frontendUrl: config.frontendUrl,
       backendUrl: config.backendUrl,
-      hasMpToken: !!config.mercadoPago.accessToken,
-      cors: corsOptions
+      hasMpToken: !!config.mercadoPago.accessToken
     }
   });
 });
@@ -83,8 +82,10 @@ app.get('/api/test', (req, res) => {
     message: 'API funcionando!',
     serverTime: agora.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
     environment: process.env.NODE_ENV,
-    port: process.env.PORT || 5001,
-    cors: corsOptions
+    cors: {
+      origin: ['https://presentenamorados.vercel.app', 'http://localhost:5173'],
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+    }
   });
 });
 
