@@ -70,11 +70,6 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Rotas adicionais
-app.post('/api/pagamento/preferencia', siteController.criarPreferencia);
-app.post('/api/pagamento/webhook', siteController.webhook);
-app.get('/api/site/:slug', siteController.buscarSitePorSlug);
-
 // Servir arquivos estáticos do frontend
 app.use(express.static(path.join(__dirname, 'client/dist')));
 
