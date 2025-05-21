@@ -46,8 +46,16 @@ exports.criarPreferencia = async (req, res) => {
     const trintaMinutosDepois = new Date(agora.getTime() + 30 * 60 * 1000);
 
     // URLs fixas para produção
-    const frontendUrl = 'https://presentenamorados.vercel.app';
-    const backendUrl = 'https://presentenamorados.vercel.app';
+    const frontendUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://presentenamorados.vercel.app'
+      : 'http://localhost:5173';
+    
+    const backendUrl = process.env.NODE_ENV === 'production'
+      ? 'https://presentenamorados.vercel.app'
+      : 'http://localhost:5001';
+
+    console.log('Ambiente:', process.env.NODE_ENV);
+    console.log('URLs configuradas:', { frontendUrl, backendUrl });
 
     const preferencia = {
       items: [{

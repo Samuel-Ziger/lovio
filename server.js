@@ -14,7 +14,7 @@ const app = express();
 app.use(cors({
   origin: ['https://presentenamorados.vercel.app', 'http://localhost:5173'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   credentials: true
 }));
 
@@ -23,11 +23,11 @@ app.use((req, res, next) => {
   res.setHeader(
     'Content-Security-Policy',
     "default-src 'self'; " +
-    "script-src 'self' 'unsafe-eval' 'unsafe-inline' http2.mlstatic.com https://http2.mlstatic.com https://www.googletagmanager.com https://js-agent.newrelic.com https://static.hotjar.com https://sdk.mercadopago.com https://www.google.com https://www.gstatic.com; " +
-    "style-src 'self' 'unsafe-inline' https://http2.mlstatic.com; " +
-    "img-src 'self' data: https://http2.mlstatic.com; " +
-    "connect-src 'self' https://api.mercadopago.com https://http2.mlstatic.com; " +
-    "frame-src 'self' https://www.google.com;"
+    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.mercadopago.com https://*.mlstatic.com https://www.googletagmanager.com https://js-agent.newrelic.com https://static.hotjar.com https://sdk.mercadopago.com https://www.google.com https://www.gstatic.com; " +
+    "style-src 'self' 'unsafe-inline' https://*.mlstatic.com; " +
+    "img-src 'self' data: https://*.mlstatic.com; " +
+    "connect-src 'self' https://*.mercadopago.com https://*.mlstatic.com https://api.mercadopago.com; " +
+    "frame-src 'self' https://*.mercadopago.com https://www.google.com;"
   );
   next();
 });
@@ -101,7 +101,7 @@ app.listen(PORT, () => {
   console.log('Configurações CORS:', {
     origin: ['https://presentenamorados.vercel.app', 'http://localhost:5173'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     credentials: true
   });
 }); 
