@@ -11,12 +11,25 @@ const siteController = require('./controllers/siteController');
 const app = express();
 
 // Configurações de CORS
-app.use(cors({
-  origin: ['https://presentenamorados.vercel.app', 'http://localhost:5173'],
+const corsOptions = {
+  origin: function (origin, callback) {
+    console.log('Origem da requisição:', origin);
+    const allowedOrigins = ['https://presentenamorados.vercel.app', 'http://localhost:5173'];
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('Origem bloqueada:', origin);
+      callback(new Error('Não permitido pelo CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  credentials: true
-}));
+  credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+};
+
+app.use(cors(corsOptions));
 
 // Adicionar headers de segurança
 app.use((req, res, next) => {
@@ -40,16 +53,8 @@ app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
   console.log('Headers:', req.headers);
   console.log('Body:', req.body);
+  console.log('Origin:', req.headers.origin);
   next();
-});
-
-// Rota de teste
-app.get('/api/test', (req, res) => {
-  const agora = new Date();
-  res.json({ 
-    message: 'API funcionando!',
-    serverTime: agora.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
-  });
 });
 
 // Rotas da API
@@ -70,13 +75,42 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Servir arquivos estáticos do frontend
-app.use(express.static(path.join(__dirname, 'client/dist')));
-
-// Rota para todas as outras requisições
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'client/dist/index.html'));
+// Rota de teste
+app.get('/api/test', (req, res) => {
+  const agora = new Date();
+  res.json({ 
+    message: 'API funcionando!',
+    serverTime: agora.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+    environment: process.env.NODE_ENV,
+    cors: {
+      origin: ['https://presentenamorados.vercel.app', 'http://localhost:5173'],
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+    }
+  });
 });
+
+// Rota de teste POST
+app.post('/api/test-post', (req, res) => {
+  console.log('Teste POST recebido:', {
+    body: req.body,
+    headers: req.headers,
+    method: req.method
+  });
+  
+  res.json({ 
+    message: 'POST funcionando!',
+    receivedData: req.body,
+    headers: req.headers
+  });
+});
+
+// Servir arquivos estáticos do frontend apenas em desenvolvimento
+if (process.env.NODE_ENV !== 'production') {
+  app.use(express.static(path.join(__dirname, 'client/dist')));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client/dist/index.html'));
+  });
+}
 
 // Tratamento de erros
 app.use((err, req, res, next) => {
@@ -87,16 +121,16 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Iniciar servidor
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-  console.log(`URL do frontend: ${config.frontendUrl}`);
-  console.log('Token do Mercado Pago configurado:', !!config.mercadoPago.accessToken);
-  console.log('Configurações CORS:', {
-    origin: ['https://presentenamorados.vercel.app', 'http://localhost:5173'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    credentials: true
+// Iniciar servidor apenas em desenvolvimento
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5001;
+  app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+    console.log(`URL do frontend: ${config.frontendUrl}`);
+    console.log('Token do Mercado Pago configurado:', !!config.mercadoPago.accessToken);
+    console.log('Configurações CORS:', corsOptions);
   });
-}); 
+}
+
+// Exportar o app para a Vercel
+module.exports = app; 
