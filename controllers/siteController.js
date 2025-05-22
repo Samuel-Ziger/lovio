@@ -72,9 +72,14 @@ exports.criarPreferencia = async (req, res) => {
     const agora = new Date();
     const trintaMinutosDepois = new Date(agora.getTime() + 30 * 60 * 1000);
 
-    // Usar as URLs da configuração
-    const frontendUrl = config.frontendUrl;
-    const backendUrl = config.backendUrl;
+    // URLs fixas para produção
+    const frontendUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://presentenamorados.vercel.app'
+      : 'http://localhost:5173';
+    
+    const backendUrl = process.env.NODE_ENV === 'production'
+      ? 'https://presentenamorados.vercel.app'
+      : 'http://localhost:5001';
 
     console.log('Ambiente:', process.env.NODE_ENV);
     console.log('URLs configuradas:', { frontendUrl, backendUrl });
