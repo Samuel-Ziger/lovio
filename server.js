@@ -6,13 +6,16 @@ const cors = require('cors');
 const path = require('path');
 const config = require('./config/config');
 const siteRoutes = require('./routes/siteRoutes');
+const siteController = require('./controllers/siteController');
 
 const app = express();
 
 // Configurações de CORS
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin || config.cors.allowedOrigins.includes(origin)) {
+    console.log('Origem da requisição:', origin);
+    const allowedOrigins = ['https://presentenamorados.vercel.app', 'http://localhost:5173'];
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
       console.log('Origem bloqueada:', origin);
@@ -45,26 +48,25 @@ app.use((req, res, next) => {
 // Middleware para parsing de JSON
 app.use(express.json());
 
-// Log de requisições em desenvolvimento
-if (process.env.NODE_ENV !== 'production') {
-  app.use((req, res, next) => {
-    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-    console.log('Headers:', req.headers);
-    console.log('Body:', req.body);
-    console.log('Origin:', req.headers.origin);
-    next();
-  });
-}
+// Log de requisições
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  console.log('Headers:', req.headers);
+  console.log('Body:', req.body);
+  console.log('Origin:', req.headers.origin);
+  next();
+});
 
 // Rotas da API
 app.use('/api', siteRoutes);
 
 // Rota de health check
 app.get('/api/health', (req, res) => {
+  const agora = new Date();
   res.json({ 
     status: 'ok', 
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV,
+    timestamp: agora.toISOString(),
+    serverTime: agora.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
     config: {
       frontendUrl: config.frontendUrl,
       backendUrl: config.backendUrl,
@@ -102,36 +104,33 @@ app.post('/api/test-post', (req, res) => {
   });
 });
 
-// Servir arquivos estáticos do frontend em produção
-if (process.env.NODE_ENV === 'production') {
+// Servir arquivos estáticos do frontend apenas em desenvolvimento
+if (process.env.NODE_ENV !== 'production') {
   app.use(express.static(path.join(__dirname, 'client/dist')));
-  
-  // Rota para servir o index.html para todas as rotas não-API
-  app.get('*', (req, res, next) => {
-    if (!req.path.startsWith('/api')) {
-      res.sendFile(path.join(__dirname, 'client/dist/index.html'));
-    } else {
-      next();
-    }
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client/dist/index.html'));
   });
 }
 
 // Tratamento de erros
 app.use((err, req, res, next) => {
   console.error('Erro:', err);
-  res.status(err.status || 500).json({ 
-    error: err.message || 'Erro interno do servidor'
+  res.status(500).json({ 
+    error: 'Erro interno do servidor',
+    message: err.message
   });
 });
 
-// Iniciar servidor
-const PORT = config.port;
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-  console.log(`Ambiente: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`URL do frontend: ${config.frontendUrl}`);
-  console.log(`URL do backend: ${config.backendUrl}`);
-});
+// Iniciar servidor apenas em desenvolvimento
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5001;
+  app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+    console.log(`URL do frontend: ${config.frontendUrl}`);
+    console.log('Token do Mercado Pago configurado:', !!config.mercadoPago.accessToken);
+    console.log('Configurações CORS:', corsOptions);
+  });
+}
 
-module.exports = app; 
+// Exportar o app para a Vercel
 module.exports = app; 
