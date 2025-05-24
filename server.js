@@ -10,21 +10,12 @@ const siteController = require('./controllers/siteController');
 
 const app = express();
 
+// Middleware para parsing de JSON
+app.use(express.json());
+
 // Configurações de CORS
 const corsOptions = {
-  origin: function (origin, callback) {
-    console.log('Origem da requisição:', origin);
-    const allowedOrigins = process.env.CORS_ORIGINS ? 
-      process.env.CORS_ORIGINS.split(',') : 
-      ['http://localhost:5173'];
-    
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.log('Origem bloqueada:', origin);
-      callback(new Error('Não permitido pelo CORS'));
-    }
-  },
+  origin: '*', // Temporariamente permitindo todas as origens para debug
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   credentials: true,
@@ -33,23 +24,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-
-// Adicionar headers de segurança
-app.use((req, res, next) => {
-  res.setHeader(
-    'Content-Security-Policy',
-    "default-src 'self'; " +
-    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.mercadopago.com https://*.mlstatic.com https://www.googletagmanager.com https://js-agent.newrelic.com https://static.hotjar.com https://sdk.mercadopago.com https://www.google.com https://www.gstatic.com; " +
-    "style-src 'self' 'unsafe-inline' https://*.mlstatic.com; " +
-    "img-src 'self' data: https://*.mlstatic.com; " +
-    "connect-src 'self' https://*.mercadopago.com https://*.mlstatic.com https://api.mercadopago.com; " +
-    "frame-src 'self' https://*.mercadopago.com https://www.google.com;"
-  );
-  next();
-});
-
-// Middleware para parsing de JSON
-app.use(express.json());
 
 // Log de requisições
 app.use((req, res, next) => {
@@ -73,7 +47,9 @@ app.get('/api/health', (req, res) => {
     config: {
       frontendUrl: config.frontendUrl,
       backendUrl: config.backendUrl,
-      hasMpToken: !!config.mercadoPago.accessToken
+      hasMpToken: !!config.mercadoPago.accessToken,
+      environment: process.env.NODE_ENV,
+      port: process.env.PORT
     }
   });
 });
@@ -85,10 +61,7 @@ app.get('/api/test', (req, res) => {
     message: 'API funcionando!',
     serverTime: agora.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
     environment: process.env.NODE_ENV,
-    cors: {
-      origin: ['https://presentenamorados.vercel.app', 'http://localhost:5173'],
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
-    }
+    cors: corsOptions
   });
 });
 
@@ -105,6 +78,20 @@ app.post('/api/test-post', (req, res) => {
     receivedData: req.body,
     headers: req.headers
   });
+});
+
+// Adicionar headers de segurança
+app.use((req, res, next) => {
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.mercadopago.com https://*.mlstatic.com https://www.googletagmanager.com https://js-agent.newrelic.com https://static.hotjar.com https://sdk.mercadopago.com https://www.google.com https://www.gstatic.com; " +
+    "style-src 'self' 'unsafe-inline' https://*.mlstatic.com; " +
+    "img-src 'self' data: https://*.mlstatic.com; " +
+    "connect-src 'self' https://*.mercadopago.com https://*.mlstatic.com https://api.mercadopago.com; " +
+    "frame-src 'self' https://*.mercadopago.com https://www.google.com;"
+  );
+  next();
 });
 
 // Servir arquivos estáticos do frontend em produção
@@ -129,8 +116,10 @@ const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
   console.log(`URL do frontend: ${config.frontendUrl}`);
+  console.log(`URL do backend: ${config.backendUrl}`);
   console.log('Token do Mercado Pago configurado:', !!config.mercadoPago.accessToken);
   console.log('Configurações CORS:', corsOptions);
+  console.log('Ambiente:', process.env.NODE_ENV);
 });
 
 // Exportar o app

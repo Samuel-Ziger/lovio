@@ -11,10 +11,20 @@ console.log('Variáveis de ambiente:', {
   PORT: process.env.PORT
 });
 
+// Determinar URLs baseado no ambiente
+const getBaseUrl = () => {
+  if (process.env.NODE_ENV === 'production') {
+    return process.env.RAILWAY_STATIC_URL || process.env.BACKEND_URL || 'http://localhost:8080';
+  }
+  return 'http://localhost:5001';
+};
+
+const baseUrl = getBaseUrl();
+
 module.exports = {
   port: process.env.PORT || 5001,
-  frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
-  backendUrl: process.env.BACKEND_URL || 'http://localhost:5001',
+  frontendUrl: process.env.FRONTEND_URL || baseUrl,
+  backendUrl: process.env.BACKEND_URL || baseUrl,
   mercadoPago: {
     accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN,
     publicKey: process.env.MERCADO_PAGO_PUBLIC_KEY,
