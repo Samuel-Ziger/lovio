@@ -14,7 +14,10 @@ const app = express();
 const corsOptions = {
   origin: function (origin, callback) {
     console.log('Origem da requisição:', origin);
-    const allowedOrigins = ['https://presentenamorados.vercel.app', 'http://localhost:5173'];
+    const allowedOrigins = process.env.CORS_ORIGINS ? 
+      process.env.CORS_ORIGINS.split(',') : 
+      ['http://localhost:5173'];
+    
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -104,8 +107,8 @@ app.post('/api/test-post', (req, res) => {
   });
 });
 
-// Servir arquivos estáticos do frontend apenas em desenvolvimento
-if (process.env.NODE_ENV !== 'production') {
+// Servir arquivos estáticos do frontend em produção
+if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'client/dist')));
   app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'client/dist/index.html'));
@@ -121,16 +124,14 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Iniciar servidor apenas em desenvolvimento
-if (process.env.NODE_ENV !== 'production') {
-  const PORT = process.env.PORT || 5001;
-  app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
-    console.log(`URL do frontend: ${config.frontendUrl}`);
-    console.log('Token do Mercado Pago configurado:', !!config.mercadoPago.accessToken);
-    console.log('Configurações CORS:', corsOptions);
-  });
-}
+// Iniciar servidor
+const PORT = process.env.PORT || 5001;
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+  console.log(`URL do frontend: ${config.frontendUrl}`);
+  console.log('Token do Mercado Pago configurado:', !!config.mercadoPago.accessToken);
+  console.log('Configurações CORS:', corsOptions);
+});
 
-// Exportar o app para a Vercel
+// Exportar o app
 module.exports = app; 
