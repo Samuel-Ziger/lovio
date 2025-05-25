@@ -23,37 +23,14 @@ console.log('Configuração do Mercado Pago:', {
 // Criar preferência de pagamento
 exports.criarPreferencia = async (req, res) => {
   try {
-    console.log('Requisição recebida:', {
-      method: req.method,
-      url: req.url,
-      headers: req.headers,
-      body: req.body
-    });
-
-    if (!req.body || !req.body.dados_site) {
-      console.error('Dados inválidos recebidos:', req.body);
-      return res.status(400).json({ 
-        error: 'Dados inválidos',
-        details: 'O corpo da requisição deve conter dados_site'
-      });
-    }
-
+    console.log('Requisição recebida:', req.body);
     const { dados_site } = req.body;
-
-    // Validar dados obrigatórios
-    if (!dados_site.nome_site || !dados_site.plano || !dados_site.slug) {
-      console.error('Dados obrigatórios faltando:', dados_site);
-      return res.status(400).json({
-        error: 'Dados incompletos',
-        details: 'nome_site, plano e slug são obrigatórios'
-      });
-    }
 
     // Definir preço baseado no plano
     let preco;
     switch (dados_site.plano) {
       case 'basic':
-        preco = 19.99;
+        preco = 1.00;
         break;
       case 'premium':
         preco = 39.90;
@@ -62,28 +39,15 @@ exports.criarPreferencia = async (req, res) => {
         preco = 59.90;
         break;
       default:
-        console.error('Plano inválido:', dados_site.plano);
-        return res.status(400).json({
-          error: 'Plano inválido',
-          details: 'O plano deve ser basic, premium ou deluxe'
-        });
+        preco = 1.00;
     }
 
     const agora = new Date();
     const trintaMinutosDepois = new Date(agora.getTime() + 30 * 60 * 1000);
 
     // URLs fixas para produção
-    const frontendUrl = process.env.NODE_ENV === 'production' 
-      ? 'https://presentenamorados.vercel.app'
-      : 'http://localhost:5173';
-    
-    const backendUrl = process.env.NODE_ENV === 'production'
-      ? 'https://presentenamorados.vercel.app'
-      : 'http://localhost:5001';
-
-    console.log('Ambiente:', process.env.NODE_ENV);
-    console.log('URLs configuradas:', { frontendUrl, backendUrl });
-    console.log('Token do Mercado Pago:', config.mercadoPago.accessToken ? 'Configurado' : 'Não configurado');
+    const frontendUrl = 'https://presentenamorados.vercel.app';
+    const backendUrl = 'https://presentenamorados.vercel.app';
 
     const preferencia = {
       items: [{
@@ -110,6 +74,12 @@ exports.criarPreferencia = async (req, res) => {
     };
 
     console.log('Criando preferência com os dados:', JSON.stringify(preferencia, null, 2));
+    console.log('URLs configuradas:', {
+      success: `${frontendUrl}/pagamento/sucesso`,
+      failure: `${frontendUrl}/pagamento/erro`,
+      pending: `${frontendUrl}/pagamento/pendente`,
+      webhook: `${backendUrl}/api/pagamento/webhook`
+    });
 
     const preference = new Preference(client);
     const response = await preference.create({ body: preferencia });
@@ -121,31 +91,11 @@ exports.criarPreferencia = async (req, res) => {
     console.error('Detalhes do erro:', {
       message: error.message,
       stack: error.stack,
-      response: error.response?.data,
-      status: error.response?.status,
-      headers: error.response?.headers
+      response: error.response?.data
     });
-    
-    // Verificar se é um erro de autenticação
-    if (error.response?.status === 401) {
-      return res.status(401).json({
-        error: 'Erro de autenticação com o Mercado Pago',
-        details: 'Token de acesso inválido ou expirado'
-      });
-    }
-
-    // Verificar se é um erro de método não permitido
-    if (error.response?.status === 405) {
-      return res.status(405).json({
-        error: 'Método não permitido',
-        details: 'Verifique se a URL e o método da requisição estão corretos'
-      });
-    }
-
     res.status(500).json({ 
       error: 'Erro ao criar preferência de pagamento',
-      details: error.message,
-      status: error.response?.status
+      details: error.message 
     });
   }
 };
