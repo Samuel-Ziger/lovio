@@ -44,17 +44,17 @@ const CreatePayment = () => {
           throw new Error(`Campos obrigatórios faltando: ${camposFaltantes.join(', ')}`);
         }
 
-        // Criar preferência de pagamento
-        console.log('Criando preferência de pagamento...');
+        // Criar preferência de pagamento via backend
+        console.log('Criando preferência de pagamento via backend...');
         const response = await mercadopagoService.criarPreferencia(dados_site);
 
-        console.log('Resposta do serviço:', response);
+        console.log('Resposta do backend:', response);
 
         if (response.init_point) {
           // Redirecionar para o Mercado Pago
           window.location.href = response.init_point;
         } else {
-          throw new Error('URL de pagamento não recebida');
+          throw new Error('URL de pagamento não recebida do backend');
         }
       } catch (error) {
         console.error('Erro ao iniciar pagamento:', error);
@@ -85,7 +85,7 @@ const CreatePayment = () => {
         <div className="text-center">
           <FaSpinner className="animate-spin text-4xl text-blue-500 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-gray-700">Processando Pagamento</h2>
-          <p className="text-gray-500 mt-2">Por favor, aguarde...</p>
+          <p className="text-gray-500 mt-2">Conectando ao servidor...</p>
         </div>
       </div>
     );

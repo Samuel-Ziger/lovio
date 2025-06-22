@@ -1,249 +1,355 @@
-# 🎁 Sistema de Criação de Sites de Presente - Firebase Hosting
+# 🎁 Homenagem - Sites Personalizados de Presente
 
-Este é um sistema completo para criar sites personalizados de presente com integração Mercado Pago, funcionando 100% no Firebase Hosting.
+Sistema completo para criação de sites personalizados de presente com integração ao Mercado Pago, hospedado no Firebase Hosting, usando React no frontend e Node.js no backend, com banco de dados MySQL via Sequelize.
 
-## 🚀 Funcionalidades
+## 🚀 Status do Projeto
 
-- ✅ **Criação de sites personalizados** com mensagens, datas e planos
-- ✅ **Integração Mercado Pago** para pagamentos
-- ✅ **Hospedagem gratuita** no Firebase Hosting
-- ✅ **Interface moderna** com React e Material-UI
-- ✅ **Responsivo** para mobile e desktop
-- ✅ **Banco de dados MySQL** para persistência de dados
-- ✅ **Sites permanentes** com sistema de expiração por plano
+### ✅ Implementado
+- ✅ **CRUD Completo** - Todas as operações de banco de dados funcionando
+- ✅ **Banco de Dados MySQL** - Configurado e testado
+- ✅ **API REST** - Endpoints completos para gerenciamento de sites
+- ✅ **Integração Mercado Pago** - Pagamentos funcionando
+- ✅ **Sistema de Expiração** - Baseado no plano escolhido
+- ✅ **Frontend React** - Interface completa
+- ✅ **Docker Compose** - Ambiente de desenvolvimento
+- ✅ **Testes Automatizados** - Scripts de teste para API
+- ✅ **Integração Frontend-Backend** - Frontend conectado ao backend
+- ✅ **Persistência Real** - Sites salvos no banco de dados
+- ✅ **Webhook Atualizado** - Sites criados automaticamente após pagamento
 
-## 📋 Planos Disponíveis
+### 🔄 Próximos Passos
+- 🔄 **Sistema de Renovação** - Renovar sites expirados
+- 🔄 **Backup Automático** - Backup do banco de dados
+- 🔄 **Monitoramento** - Logs e métricas
+- 🔄 **Segurança** - Validações e autenticação
+- 🔄 **Upload de Imagens** - Sistema de upload real
 
-- **Basic**: R$ 19,99 - Site simples (1 ano)
-- **Premium**: R$ 39,90 - Site com mais recursos (2 anos)
-- **Deluxe**: R$ 59,90 - Site completo (10 anos)
+## 📋 Funcionalidades
+
+### 🎯 Sites Personalizados
+- **Título personalizado** - Nome do site
+- **Mensagem especial** - Texto personalizado
+- **Data comemorativa** - Data do evento
+- **Imagens** - Upload de fotos
+- **Emojis** - Seleção de emojis
+- **Música** - URL de música de fundo
+
+### 💳 Planos de Pagamento
+- **Basic** - R$ 19,99 (1 ano)
+- **Premium** - R$ 39,90 (2 anos)
+- **Deluxe** - R$ 59,90 (10 anos)
+
+### 🔧 Operações CRUD
+- **CREATE** - Criar novo site
+- **READ** - Buscar site por slug / Listar sites
+- **UPDATE** - Atualizar dados do site
+- **DELETE** - Remover site
+
+### 🔗 Integração Frontend-Backend
+- **API Service** - Serviço para comunicação com backend
+- **Validação de Dados** - Validação no frontend e backend
+- **Fallback localStorage** - Funciona offline se API falhar
+- **Webhook Inteligente** - Cria sites automaticamente após pagamento
 
 ## 🛠️ Tecnologias
 
-- **Frontend**: React + Vite + Material-UI
-- **Backend**: Node.js + Express
-- **Banco de Dados**: MySQL com Sequelize
-- **Containerização**: Docker + Docker Compose
-- **Pagamentos**: Mercado Pago
-- **Hospedagem**: Firebase Hosting
-- **Estilização**: Styled Components + CSS
+### Frontend
+- **React** - Framework JavaScript
+- **Vite** - Build tool
+- **CSS** - Estilização
+- **Mercado Pago SDK** - Integração de pagamento
+- **API Service** - Comunicação com backend
 
-## 🐳 Configuração do Banco de Dados
+### Backend
+- **Node.js** - Runtime JavaScript
+- **Express** - Framework web
+- **Sequelize** - ORM para MySQL
+- **Mercado Pago API** - Processamento de pagamentos
 
-### 1. Pré-requisitos
-- Docker e Docker Compose instalados
-- Node.js (versão 14 ou superior)
+### Banco de Dados
+- **MySQL** - Banco de dados relacional
+- **Docker** - Containerização
+- **phpMyAdmin** - Interface web
 
-### 2. Iniciar o Banco de Dados
+### Infraestrutura
+- **Firebase Hosting** - Hospedagem
+- **Vercel** - Deploy automático
+- **Docker Compose** - Orquestração
+
+## 🚀 Instalação e Configuração
+
+### Pré-requisitos
+- Node.js 18+
+- Docker e Docker Compose
+- Git
+
+### 1. Clone o repositório
 ```bash
-# Iniciar MySQL e phpMyAdmin
-npm run db:up
-
-# Verificar logs do MySQL
-npm run db:logs
-
-# Testar conexão com o banco
-npm run db:test
+git clone <url-do-repositorio>
+cd Homenagem
 ```
 
-### 3. Acessar phpMyAdmin
-- **URL**: http://localhost:8080
-- **Usuário**: `namoro_user`
-- **Senha**: `namoro123`
-- **Banco**: `namoromemoria`
+### 2. Configure as variáveis de ambiente
+Crie um arquivo `.env` na raiz do projeto:
+```env
+# URLs
+FRONTEND_URL=http://localhost:5173
+BACKEND_URL=http://localhost:5002
 
-### 4. Comandos Úteis do Banco
-```bash
-# Parar os containers
-npm run db:down
+# Mercado Pago
+MERCADO_PAGO_ACCESS_TOKEN=APP_USR-4868459967001491-051003-be2cae39860e8eb714f547165324245f-305462343
+MERCADO_PAGO_PUBLIC_KEY=APP_USR-fc533834-0b64-46f1-88ff-f4a610774e2d
 
-# Reiniciar o banco
-npm run db:restart
-
-# Resetar completamente (apaga todos os dados)
-npm run db:reset
-
-# Ver logs em tempo real
-npm run db:logs
+# Banco de Dados
+DB_HOST=localhost
+DB_PORT=3307
+DB_NAME=homenagem_db
+DB_USER=root
+DB_PASSWORD=123456
 ```
 
-### 5. Configurações do Banco
-- **Host**: localhost
-- **Porta**: 3307 (evita conflito com MySQL local)
-- **Database**: namoromemoria
-- **Usuário**: namoro_user
-- **Senha**: namoro123
-
-## 🚀 Deploy Rápido
-
-### 1. Configuração Inicial
+### 3. Inicie o banco de dados
 ```bash
-# Clone o repositório
-git clone [URL_DO_REPOSITÓRIO]
-cd [NOME_DO_DIRETÓRIO]
-
-# Instale as dependências
-npm run install:all
-
-# Inicie o banco de dados
-npm run db:up
-
-# Teste a conexão
-npm run db:test
+docker-compose up -d
 ```
 
-### 2. Configurar Mercado Pago (Opcional)
-Para usar pagamentos reais, edite o arquivo `config/config.js`:
-
-```javascript
-mercadoPago: {
-  accessToken: 'SUA_CHAVE_ACCESS_TOKEN_AQUI',
-  publicKey: 'SUA_CHAVE_PUBLICA_AQUI'
-}
+### 4. Instale as dependências
+```bash
+npm install
+cd client && npm install
 ```
 
-### 3. Rodar em Desenvolvimento
+### 5. Inicialize o banco de dados
 ```bash
-# Rodar frontend e backend
+node scripts/init.sql
+```
+
+### 6. Teste a conexão com o banco
+```bash
+node scripts/test-database.js
+```
+
+### 7. Inicie o servidor
+```bash
+node server.js
+```
+
+### 8. Em outro terminal, inicie o frontend
+```bash
+cd client
 npm run dev
-
-# Ou rodar apenas o servidor
-npm run dev:server
 ```
 
-### 4. Deploy
+## 🌐 URLs de Acesso
+
+### Desenvolvimento
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:5002/api
+- **phpMyAdmin**: http://localhost:8080
+  - Usuário: `root`
+  - Senha: `123456`
+
+### Produção
+- **Frontend**: https://presentenamorados.vercel.app
+- **Backend**: https://presentenamorados.vercel.app
+
+## 📡 API Endpoints
+
+### 🔧 Utility
+- `GET /api/health` - Health check da API
+- `GET /api/test` - Teste da API
+
+### 📝 CRUD Sites
+- `POST /api/sites` - Criar site
+- `GET /api/site/:slug` - Buscar site por slug
+- `GET /api/sites` - Listar todos os sites
+- `GET /api/sites/ativos` - Listar sites ativos
+- `PUT /api/site/:slug` - Atualizar site
+- `DELETE /api/site/:slug` - Deletar site
+
+### 💳 Pagamento
+- `POST /api/pagamento/preferencia` - Criar preferência de pagamento
+- `POST /api/pagamento/webhook` - Webhook do Mercado Pago
+
+## 🧪 Testes
+
+### Teste Automatizado do CRUD
 ```bash
-# Build do projeto
-npm run build
-
-# Deploy para Firebase
-firebase deploy --only hosting
+node scripts/test-crud.js
 ```
 
-## 🎯 Como Usar
-
-### Para Criar um Site:
-1. Acesse: http://localhost:5173
-2. Preencha os dados do site (título, mensagem, data)
-3. Escolha um plano
-4. Faça o pagamento
-5. Compartilhe o link do seu site!
-
-### Para Ver um Site Criado:
-- Acesse: `http://localhost:5173/site/[nome-do-site]`
-
-## 📁 Estrutura do Projeto
-
-```
-├── client/                 # Frontend React
-│   ├── src/
-│   │   ├── components/     # Componentes reutilizáveis
-│   │   ├── pages/         # Páginas da aplicação
-│   │   ├── services/      # Serviços (Mercado Pago)
-│   │   └── config/        # Configurações
-│   └── dist/              # Build para produção
-├── config/                # Configurações do projeto
-│   ├── database.js        # Configuração do banco
-│   └── config.js          # Configurações gerais
-├── models/                # Modelos do Sequelize
-│   └── Site.js           # Modelo de Site
-├── scripts/               # Scripts utilitários
-│   ├── init.sql          # Inicialização do banco
-│   └── test-database.js  # Teste de conexão
-├── docker-compose.yml     # Configuração Docker
-├── postman_collection.json # Coleção Postman para testes
-├── firebase.json          # Configuração Firebase
-└── package.json           # Dependências do projeto
-```
-
-## 🔧 Desenvolvimento Local
-
+### Teste de Integração Frontend-Backend
 ```bash
-# Instalar dependências
-npm run install:all
-
-# Iniciar banco de dados
-npm run db:up
-
-# Testar banco de dados
-npm run db:test
-
-# Rodar em desenvolvimento
-npm run dev
-
-# Build para produção
-npm run build
+node scripts/test-integration.js
 ```
 
-## 🧪 Testando a API
+### Teste com Postman
+1. Importe a coleção `postman_collection.json`
+2. Configure a variável `baseUrl` para `http://localhost:5002/api`
+3. Execute os testes
 
-### Com Postman:
-1. Importe o arquivo `postman_collection.json` no Postman
-2. Teste as seguintes rotas:
-   - `GET /api/health` - Health check da API
-   - `GET /api/test` - Teste básico
-   - `POST /api/pagamento/preferencia` - Criar preferência de pagamento
-   - `GET /api/site/:slug` - Buscar site por slug
-
-### Com cURL:
+### Teste com cURL
 ```bash
 # Health check
-curl http://localhost:5001/api/health
+curl http://localhost:5002/api/health
 
-# Teste da API
-curl http://localhost:5001/api/test
+# Criar site
+curl -X POST http://localhost:5002/api/sites \
+  -H "Content-Type: application/json" \
+  -d '{"slug":"teste","nome_site":"Site Teste","plano":"basic","dados_json":{"titulo":"Teste","mensagem":"Mensagem"}}'
+
+# Buscar site
+curl http://localhost:5002/api/site/teste
+
+# Listar sites
+curl http://localhost:5002/api/sites
+
+# Atualizar site
+curl -X PUT http://localhost:5002/api/site/teste \
+  -H "Content-Type: application/json" \
+  -d '{"nome_site":"Site Atualizado"}'
+
+# Deletar site
+curl -X DELETE http://localhost:5002/api/site/teste
 ```
 
-## 💳 Testando Pagamentos
+## 📊 Estrutura do Projeto
 
-Para testar sem pagamentos reais, o sistema simula a criação de preferências. Em produção, configure suas credenciais do Mercado Pago.
+```
+Homenagem/
+├── api/                    # API do Firebase Functions
+├── client/                 # Frontend React
+│   ├── src/
+│   │   ├── components/     # Componentes React
+│   │   ├── pages/          # Páginas
+│   │   ├── services/       # Serviços (API e Mercado Pago)
+│   │   └── config/         # Configurações
+├── config/                 # Configurações do backend
+├── controllers/            # Controladores da API
+├── models/                 # Modelos Sequelize
+├── routes/                 # Rotas da API
+├── scripts/                # Scripts utilitários
+├── server.js              # Servidor principal
+├── docker-compose.yml     # Configuração Docker
+└── README.md              # Este arquivo
+```
 
-## 🌐 URLs Importantes
+## 🔧 Comandos Úteis
 
-- **Site Principal**: http://localhost:5173
-- **Criar Site**: http://localhost:5173
-- **phpMyAdmin**: http://localhost:8080
-- **API Health**: http://localhost:5001/api/health
-- **Exemplo de Site**: http://localhost:5173/site/exemplo-amor
+### Docker
+```bash
+# Iniciar serviços
+docker-compose up -d
 
-## 🎨 Personalização
+# Parar serviços
+docker-compose down
 
-### Cores e Tema
-Edite o arquivo `client/src/theme.js` para personalizar cores e estilos.
+# Ver logs
+docker-compose logs -f
 
-### Componentes
-Todos os componentes estão em `client/src/components/` e podem ser facilmente modificados.
+# Acessar MySQL
+docker exec -it homenagem-mysql mysql -u root -p
+```
 
-## 📱 Responsividade
+### Desenvolvimento
+```bash
+# Instalar dependências
+npm install
 
-O site é totalmente responsivo e funciona perfeitamente em:
-- 📱 Smartphones
-- 📱 Tablets  
-- 💻 Desktops
+# Iniciar servidor
+node server.js
 
-## 🔒 Segurança
+# Iniciar frontend
+cd client && npm run dev
 
-- Dados armazenados no banco MySQL
-- Validação de dados no backend
-- Integração segura com Mercado Pago
-- Sistema de expiração automática
+# Build do frontend
+cd client && npm run build
+```
 
-## 🚀 Próximos Passos
+### Banco de Dados
+```bash
+# Testar conexão
+node scripts/test-database.js
 
-- [x] Configuração do banco de dados MySQL
-- [x] Sistema de sites permanentes
-- [ ] Implementar CRUD completo no controller
-- [ ] Modificar webhook para salvar no banco
-- [ ] Atualizar frontend para usar API
-- [ ] Adicionar mais templates de site
-- [ ] Integração com redes sociais
-- [ ] Sistema de usuários
-- [ ] Analytics e métricas
+# Inicializar banco
+node scripts/init.sql
+
+# Verificar expiração
+node scripts/verificarExpiracao.js
+```
+
+### Testes
+```bash
+# Teste CRUD
+node scripts/test-crud.js
+
+# Teste de integração
+node scripts/test-integration.js
+```
+
+## 🔗 Como Funciona a Integração
+
+### 1. Fluxo de Criação de Site
+1. **Frontend** - Usuário preenche formulário
+2. **localStorage** - Dados salvos temporariamente
+3. **Pagamento** - Preferência criada via backend
+4. **Mercado Pago** - Processamento do pagamento
+5. **Webhook** - Site criado automaticamente no banco
+6. **Persistência** - Site fica disponível permanentemente
+
+### 2. Busca de Sites
+1. **API** - Primeiro tenta buscar na API
+2. **localStorage** - Se não encontrar, busca no localStorage
+3. **Fallback** - Sistema funciona offline se necessário
+
+### 3. Validações
+- **Frontend** - Validação básica dos dados
+- **Backend** - Validação completa e segura
+- **Slug único** - Verificação de disponibilidade
+
+## 📈 Próximos Passos
+
+### 1. Sistema de Renovação
+- [ ] Notificação de expiração
+- [ ] Renovação automática
+- [ ] Histórico de renovações
+
+### 2. Upload de Imagens
+- [ ] Sistema de upload real
+- [ ] CDN para imagens
+- [ ] Otimização de imagens
+
+### 3. Backup e Monitoramento
+- [ ] Backup automático do banco
+- [ ] Logs estruturados
+- [ ] Métricas de uso
+
+### 4. Segurança
+- [ ] Validação de dados avançada
+- [ ] Rate limiting
+- [ ] Autenticação de usuários
+
+### 5. Melhorias
+- [ ] Cache Redis
+- [ ] PWA (Progressive Web App)
+- [ ] SEO otimizado
+
+## 🤝 Contribuição
+
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
 ## 📞 Suporte
 
-Para dúvidas ou problemas, abra uma issue no repositório.
+Para suporte, envie um email para [seu-email@exemplo.com] ou abra uma issue no GitHub.
 
 ---
 
-**Desenvolvido com ❤️ para criar momentos especiais!** 
+**Desenvolvido com ❤️ para criar momentos especiais** 

@@ -1,86 +1,56 @@
-// Serviço para integração direta com Mercado Pago
-const MERCADO_PAGO_PUBLIC_KEY = 'APP_USR-fc533834-0b64-46f1-88ff-f4a610774e2d';
-const MERCADO_PAGO_ACCESS_TOKEN = 'APP_USR-4868459967001491-051003-be2cae39860e8eb714f547165324245f-305462343';
+// Serviço para integração com Mercado Pago via backend
+import { apiService } from './apiService';
 
 export const mercadopagoService = {
   // Inicializar Mercado Pago
   init() {
     if (typeof window !== 'undefined' && window.Mercadopago) {
-      window.Mercadopago.setPublishableKey(MERCADO_PAGO_PUBLIC_KEY);
+      // Configuração será feita pelo backend
+      console.log('Mercado Pago inicializado');
     }
   },
 
-  // Criar preferência de pagamento
+  // Criar preferência de pagamento via backend
   async criarPreferencia(dados_site) {
     try {
-      // Definir preço baseado no plano
-      let preco;
-      switch (dados_site.plano) {
-        case 'basic':
-          preco = 1.00;
-          break;
-        case 'premium':
-          preco = 39.90;
-          break;
-        case 'deluxe':
-          preco = 59.90;
-          break;
-        default:
-          preco = 1.00;
-      }
+      console.log('Criando preferência via backend:', dados_site);
 
-      const agora = new Date();
-      const trintaMinutosDepois = new Date(agora.getTime() + 30 * 60 * 1000);
-
-      const preferencia = {
-        items: [{
-          title: `Site ${dados_site.nome_site} - Plano ${dados_site.plano}`,
-          unit_price: preco,
-          quantity: 1,
-          currency_id: 'BRL'
-        }],
-        back_urls: {
-          success: `${window.location.origin}/pagamento/sucesso`,
-          failure: `${window.location.origin}/pagamento/erro`,
-          pending: `${window.location.origin}/pagamento/pendente`
-        },
-        external_reference: dados_site.slug,
-        statement_descriptor: 'MEMORIA SITE',
-        expires: true,
-        expiration_date_from: agora.toISOString(),
-        expiration_date_to: trintaMinutosDepois.toISOString(),
-        payment_methods: {
-          excluded_payment_types: [],
-          installments: 1
-        }
+      // Preparar dados do site
+      const dadosLocalStorage = {
+        title: dados_site.nome_site,
+        date: dados_site.data_inicio,
+        message: dados_site.mensagem,
+        images: localStorage.getItem('images'),
+        emojis: localStorage.getItem('emojis'),
+        spotifyUrl: localStorage.getItem('spotifyUrl'),
+        plan: dados_site.plano
       };
 
-      // Salvar dados do site no localStorage para recuperação posterior
+      // Preparar dados para a API
+      const siteData = apiService.prepararDadosSite(dadosLocalStorage);
+      
+      // Validar dados
+      apiService.validarDadosSite(siteData);
+
+      // Verificar se slug está disponível
+      const slugDisponivel = await apiService.verificarSlugDisponivel(siteData.slug);
+      if (!slugDisponivel) {
+        throw new Error('Este nome de site já está em uso. Escolha outro nome.');
+      }
+
+      // Salvar dados no localStorage para recuperação posterior
       localStorage.setItem('site_data', JSON.stringify({
-        ...dados_site,
-        data_criacao: agora.toISOString(),
-        data_expiracao: trintaMinutosDepois.toISOString(),
+        ...siteData,
+        data_criacao: new Date().toISOString(),
         status: 'pendente'
       }));
 
-      // Criar preferência real no Mercado Pago
-      const response = await fetch('https://api.mercadopago.com/checkout/preferences', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${MERCADO_PAGO_ACCESS_TOKEN}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(preferencia)
-      });
+      // Criar preferência via backend
+      const response = await apiService.criarPreferencia(siteData);
 
-      if (!response.ok) {
-        throw new Error('Erro ao criar preferência no Mercado Pago');
-      }
-
-      const data = await response.json();
-      console.log('Preferência criada no Mercado Pago:', data);
+      console.log('Preferência criada via backend:', response);
       
-      return data;
+      return response;
 
     } catch (error) {
       console.error('Erro ao criar preferência:', error);
@@ -89,7 +59,7 @@ export const mercadopagoService = {
   },
 
   // Processar pagamento de sucesso
-  processarSucesso(payment_id, status) {
+  async processarSucesso(payment_id, status) {
     try {
       const siteData = localStorage.getItem('site_data');
       if (siteData) {
@@ -97,6 +67,17 @@ export const mercadopagoService = {
         dados.status = status === 'approved' ? 'ativo' : 'pendente';
         dados.payment_id = payment_id;
         dados.data_pagamento = new Date().toISOString();
+        
+        // Se o pagamento foi aprovado, criar o site no banco
+        if (status === 'approved') {
+          try {
+            await apiService.criarSite(dados);
+            console.log('Site criado no banco após pagamento aprovado');
+          } catch (error) {
+            console.error('Erro ao criar site no banco:', error);
+            // Não falhar o processo se houver erro no banco
+          }
+        }
         
         localStorage.setItem('site_data', JSON.stringify(dados));
         
@@ -113,47 +94,72 @@ export const mercadopagoService = {
     }
   },
 
-  // Buscar site por slug
-  buscarSite(slug) {
+  // Buscar site por slug (primeiro tenta API, depois localStorage)
+  async buscarSite(slug) {
     try {
-      const sitesAtivos = JSON.parse(localStorage.getItem('sites_ativos') || '[]');
-      const site = sitesAtivos.find(s => s.slug === slug);
-      
-      if (!site) {
-        throw new Error('Site não encontrado');
-      }
+      // Primeiro tenta buscar na API
+      try {
+        const site = await apiService.buscarSite(slug);
+        console.log('Site encontrado na API:', site);
+        return site;
+      } catch (apiError) {
+        console.log('Site não encontrado na API, tentando localStorage:', apiError.message);
+        
+        // Se não encontrar na API, tenta no localStorage
+        const sitesAtivos = JSON.parse(localStorage.getItem('sites_ativos') || '[]');
+        const site = sitesAtivos.find(s => s.slug === slug);
+        
+        if (!site) {
+          throw new Error('Site não encontrado');
+        }
 
-      if (site.status !== 'ativo') {
-        throw new Error('Site não está ativo');
-      }
+        if (site.status !== 'ativo') {
+          throw new Error('Site não está ativo');
+        }
 
-      if (new Date() > new Date(site.data_expiracao)) {
-        throw new Error('Site expirado');
-      }
+        if (new Date() > new Date(site.data_expiracao)) {
+          throw new Error('Site expirado');
+        }
 
-      return site;
+        return site;
+      }
     } catch (error) {
       console.error('Erro ao buscar site:', error);
       throw error;
     }
   },
 
-  // Listar sites ativos
-  listarSites() {
+  // Listar sites ativos (combina API e localStorage)
+  async listarSites() {
     try {
-      return JSON.parse(localStorage.getItem('sites_ativos') || '[]');
+      // Buscar sites da API
+      const sitesAPI = await apiService.listarSitesAtivos();
+      
+      // Buscar sites do localStorage
+      const sitesLocalStorage = JSON.parse(localStorage.getItem('sites_ativos') || '[]');
+      
+      // Combinar e remover duplicatas
+      const todosSites = [...sitesAPI.sites, ...sitesLocalStorage];
+      const sitesUnicos = todosSites.filter((site, index, self) => 
+        index === self.findIndex(s => s.slug === site.slug)
+      );
+      
+      return sitesUnicos;
     } catch (error) {
       console.error('Erro ao listar sites:', error);
-      return [];
+      // Em caso de erro na API, retorna apenas localStorage
+      return JSON.parse(localStorage.getItem('sites_ativos') || '[]');
     }
   },
 
-  // Verificar status do pagamento
+  // Verificar status do pagamento via backend
   async verificarPagamento(payment_id) {
     try {
+      // Por enquanto, vamos usar a API do Mercado Pago diretamente
+      // No futuro, isso pode ser feito via backend
       const response = await fetch(`https://api.mercadopago.com/v1/payments/${payment_id}`, {
         headers: {
-          'Authorization': `Bearer ${MERCADO_PAGO_ACCESS_TOKEN}`
+          'Authorization': `Bearer APP_USR-4868459967001491-051003-be2cae39860e8eb714f547165324245f-305462343`
         }
       });
 
@@ -167,5 +173,17 @@ export const mercadopagoService = {
       console.error('Erro ao verificar pagamento:', error);
       throw error;
     }
+  },
+
+  // Limpar dados temporários
+  limparDadosTemporarios() {
+    localStorage.removeItem('site_data');
+    localStorage.removeItem('title');
+    localStorage.removeItem('date');
+    localStorage.removeItem('message');
+    localStorage.removeItem('images');
+    localStorage.removeItem('emojis');
+    localStorage.removeItem('spotifyUrl');
+    localStorage.removeItem('plan');
   }
 }; 

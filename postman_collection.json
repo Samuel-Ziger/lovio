@@ -1,95 +1,187 @@
 {
   "info": {
-    "name": "Namoro Memoria API",
-    "description": "Coleção de testes para a API de sites de presente",
+    "name": "Homenagem API",
+    "description": "API para criação de sites personalizados de presente",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
-  "item": [
-    {
-      "name": "Health Check",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:5001/api/health",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5001",
-          "path": ["api", "health"]
-        }
-      }
-    },
-    {
-      "name": "Teste API",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:5001/api/test",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5001",
-          "path": ["api", "test"]
-        }
-      }
-    },
-    {
-      "name": "Criar Preferência de Pagamento",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"dados_site\": {\n    \"plano\": \"basic\",\n    \"nome_site\": \"Meu Amor\",\n    \"slug\": \"meu-amor\",\n    \"data_inicio\": \"2023-01-01\",\n    \"mensagem\": \"Para sempre juntos\"\n  }\n}"
-        },
-        "url": {
-          "raw": "http://localhost:5001/api/pagamento/preferencia",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5001",
-          "path": ["api", "pagamento", "preferencia"]
-        }
-      }
-    },
-    {
-      "name": "Buscar Site por Slug",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:5001/api/site/exemplo-amor",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5001",
-          "path": ["api", "site", "exemplo-amor"]
-        }
-      }
-    },
-    {
-      "name": "Listar Todos os Sites",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:5001/api/sites",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5001",
-          "path": ["api", "sites"]
-        }
-      }
-    }
-  ],
   "variable": [
     {
-      "key": "base_url",
-      "value": "http://localhost:5001",
+      "key": "baseUrl",
+      "value": "http://localhost:5002/api",
       "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🔧 Utility",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "Test API",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/test",
+              "host": ["{{baseUrl}}"],
+              "path": ["test"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📝 CRUD Sites",
+      "item": [
+        {
+          "name": "Criar Site",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"slug\": \"meu-site-teste\",\n  \"nome_site\": \"Meu Site de Teste\",\n  \"plano\": \"basic\",\n  \"dados_json\": {\n    \"titulo\": \"Feliz Aniversário!\",\n    \"mensagem\": \"Parabéns pelo seu dia especial!\",\n    \"data\": \"2024-12-25\",\n    \"imagens\": [\"https://exemplo.com/imagem1.jpg\"],\n    \"emojis\": [\"🎉\", \"🎂\", \"🎁\"],\n    \"musica\": \"https://exemplo.com/musica.mp3\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sites",
+              "host": ["{{baseUrl}}"],
+              "path": ["sites"]
+            }
+          }
+        },
+        {
+          "name": "Buscar Site por Slug",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/site/meu-site-teste",
+              "host": ["{{baseUrl}}"],
+              "path": ["site", "meu-site-teste"]
+            }
+          }
+        },
+        {
+          "name": "Listar Todos os Sites",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/sites",
+              "host": ["{{baseUrl}}"],
+              "path": ["sites"]
+            }
+          }
+        },
+        {
+          "name": "Listar Sites Ativos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/sites/ativos",
+              "host": ["{{baseUrl}}"],
+              "path": ["sites", "ativos"]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Site",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome_site\": \"Meu Site Atualizado\",\n  \"plano\": \"premium\",\n  \"dados_json\": {\n    \"titulo\": \"Feliz Aniversário Atualizado!\",\n    \"mensagem\": \"Parabéns pelo seu dia especial! Atualizado!\",\n    \"data\": \"2024-12-25\",\n    \"imagens\": [\"https://exemplo.com/imagem1.jpg\", \"https://exemplo.com/imagem2.jpg\"],\n    \"emojis\": [\"🎉\", \"🎂\", \"🎁\", \"✨\"],\n    \"musica\": \"https://exemplo.com/musica.mp3\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/site/meu-site-teste",
+              "host": ["{{baseUrl}}"],
+              "path": ["site", "meu-site-teste"]
+            }
+          }
+        },
+        {
+          "name": "Deletar Site",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/site/meu-site-teste",
+              "host": ["{{baseUrl}}"],
+              "path": ["site", "meu-site-teste"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "💳 Pagamento",
+      "item": [
+        {
+          "name": "Criar Preferência de Pagamento",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dados_site\": {\n    \"slug\": \"site-pagamento-teste\",\n    \"nome_site\": \"Site de Pagamento Teste\",\n    \"plano\": \"basic\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/pagamento/preferencia",
+              "host": ["{{baseUrl}}"],
+              "path": ["pagamento", "preferencia"]
+            }
+          }
+        },
+        {
+          "name": "Webhook Mercado Pago",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"payment\",\n  \"data\": {\n    \"id\": 123456789\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/pagamento/webhook",
+              "host": ["{{baseUrl}}"],
+              "path": ["pagamento", "webhook"]
+            }
+          }
+        }
+      ]
     }
   ]
 } 
