@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const { sequelize } = require('../config/database');
 
 const Site = sequelize.define('Site', {
   id: {
@@ -34,9 +34,9 @@ const Site = sequelize.define('Site', {
     allowNull: false
   },
   status: {
-    type: DataTypes.ENUM('ativo', 'expirado', 'pendente'),
+    type: DataTypes.ENUM('ativo', 'inativo', 'pendente'),
     allowNull: false,
-    defaultValue: 'ativo'
+    defaultValue: 'pendente'
   }
 });
 

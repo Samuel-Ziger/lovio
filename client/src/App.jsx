@@ -17,6 +17,7 @@ import PaymentSuccess from './pages/PaymentSuccess';
 import PaymentError from './pages/PaymentError';
 import PaymentPending from './pages/PaymentPending';
 import SitePage from './pages/SitePage';
+import logoLovio from '../public/lovio.png';
 
 const App = () => {
   return (
@@ -57,7 +58,8 @@ const App = () => {
                 gap: 1
               }}
             >
-              <FavoriteIcon /> Presente Virtual de Amor
+              <img src={logoLovio} alt="Lovio" style={{ height: 32, width: 32, borderRadius: 8, marginRight: 8, background: '#fff' }} />
+              Lovio
             </Typography>
             <Button 
               color="inherit" 

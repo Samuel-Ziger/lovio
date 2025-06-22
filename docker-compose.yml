@@ -3,41 +3,40 @@ version: '3.8'
 services:
   mysql:
     image: mysql:8.0
-    container_name: namoromemoria_mysql
+    container_name: lovio-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: root123
-      MYSQL_DATABASE: namoromemoria
-      MYSQL_USER: namoro_user
-      MYSQL_PASSWORD: namoro123
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: lovio_db
+      MYSQL_USER: lovio_user
+      MYSQL_PASSWORD: lovio123
     ports:
       - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
-    command: --default-authentication-plugin=mysql_native_password
     networks:
-      - namoro_network
+      - lovio-network
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
-    container_name: namoromemoria_phpmyadmin
+    container_name: lovio-phpmyadmin
     restart: unless-stopped
     environment:
       PMA_HOST: mysql
       PMA_PORT: 3306
-      PMA_USER: namoro_user
-      PMA_PASSWORD: namoro123
+      PMA_USER: root
+      PMA_PASSWORD: 123456
     ports:
       - "8080:80"
     depends_on:
       - mysql
     networks:
-      - namoro_network
+      - lovio-network
 
 volumes:
   mysql_data:
 
 networks:
-  namoro_network:
+  lovio-network:
     driver: bridge 

@@ -3,13 +3,13 @@ require('dotenv').config();
 
 // Configurações do banco de dados
 const dbConfig = {
-  database: process.env.DB_NAME || 'namoromemoria',
-  username: process.env.DB_USER || 'namoro_user',
-  password: process.env.DB_PASSWORD || 'namoro123',
+  database: process.env.DB_NAME || 'lovio_db',
+  username: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '123456',
   host: process.env.DB_HOST || 'localhost',
   port: process.env.DB_PORT || 3307,
   dialect: 'mysql',
-  logging: process.env.NODE_ENV === 'development' ? console.log : false,
+  logging: false,
   pool: {
     max: 5,
     min: 0,
@@ -18,7 +18,7 @@ const dbConfig = {
   },
   define: {
     timestamps: true,
-    underscored: false,
+    underscored: true,
     freezeTableName: true
   }
 };
@@ -44,13 +44,15 @@ const testConnection = async () => {
     console.log('✅ Conexão com o banco de dados estabelecida com sucesso.');
     console.log(`📊 Banco: ${dbConfig.database}`);
     console.log(`🌐 Host: ${dbConfig.host}:${dbConfig.port}`);
+    return true;
   } catch (error) {
-    console.error('❌ Não foi possível conectar ao banco de dados:', error.message);
+    console.error('❌ Erro ao conectar com o banco de dados:', error.message);
     console.log('💡 Verifique se o Docker está rodando: docker-compose up -d');
+    return false;
   }
 };
 
 // Executar teste de conexão
 testConnection();
 
-module.exports = sequelize; 
+module.exports = { sequelize, testConnection }; 

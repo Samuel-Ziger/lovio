@@ -63,7 +63,7 @@ const HomePage = () => {
             zIndex: 0
           }}
         >
-          ❤️
+          💕
         </Box>
       ))}
 
@@ -99,7 +99,7 @@ const HomePage = () => {
               mb: 3
             }}
           >
-            Presente Virtual de Amor
+            Lovio
           </Typography>
 
           <Typography
@@ -107,7 +107,16 @@ const HomePage = () => {
             color="textSecondary"
             sx={{ mb: 4 }}
           >
-            Crie uma página especial para celebrar seu amor
+            Sites Personalizados de Presente
+          </Typography>
+
+          <Typography
+            variant="body1"
+            color="textSecondary"
+            sx={{ mb: 4, maxWidth: 600, mx: 'auto' }}
+          >
+            Crie uma página especial para celebrar seu amor, aniversário, casamento ou qualquer momento especial. 
+            Personalize com fotos, mensagens, músicas e muito mais!
           </Typography>
 
           <Button

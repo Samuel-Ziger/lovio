@@ -1,4 +1,4 @@
-# 🎁 Homenagem - Sites Personalizados de Presente
+# 💕 Lovio - Sites Personalizados de Presente
 
 Sistema completo para criação de sites personalizados de presente com integração ao Mercado Pago, hospedado no Firebase Hosting, usando React no frontend e Node.js no backend, com banco de dados MySQL via Sequelize.
 
@@ -86,7 +86,7 @@ Sistema completo para criação de sites personalizados de presente com integra�
 ### 1. Clone o repositório
 ```bash
 git clone <url-do-repositorio>
-cd Homenagem
+cd Lovio
 ```
 
 ### 2. Configure as variáveis de ambiente
@@ -103,7 +103,7 @@ MERCADO_PAGO_PUBLIC_KEY=APP_USR-fc533834-0b64-46f1-88ff-f4a610774e2d
 # Banco de Dados
 DB_HOST=localhost
 DB_PORT=3307
-DB_NAME=homenagem_db
+DB_NAME=lovio_db
 DB_USER=root
 DB_PASSWORD=123456
 ```
@@ -150,8 +150,8 @@ npm run dev
   - Senha: `123456`
 
 ### Produção
-- **Frontend**: https://presentenamorados.vercel.app
-- **Backend**: https://presentenamorados.vercel.app
+- **Frontend**: https://lovio.vercel.app
+- **Backend**: https://lovio.vercel.app
 
 ## 📡 API Endpoints
 
@@ -216,7 +216,7 @@ curl -X DELETE http://localhost:5002/api/site/teste
 ## 📊 Estrutura do Projeto
 
 ```
-Homenagem/
+Lovio/
 ├── api/                    # API do Firebase Functions
 ├── client/                 # Frontend React
 │   ├── src/
@@ -248,7 +248,7 @@ docker-compose down
 docker-compose logs -f
 
 # Acessar MySQL
-docker exec -it homenagem-mysql mysql -u root -p
+docker exec -it lovio-mysql mysql -u root -p
 ```
 
 ### Desenvolvimento
@@ -352,4 +352,4 @@ Para suporte, envie um email para [seu-email@exemplo.com] ou abra uma issue no G
 
 ---
 
-**Desenvolvido com ❤️ para criar momentos especiais** 
+**Desenvolvido com 💕 para criar momentos especiais através do Lovio** 
