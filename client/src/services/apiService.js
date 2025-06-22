@@ -1,5 +1,10 @@
-// Serviço para integração com a API do backend
-const API_BASE_URL = 'http://localhost:5002/api';
+// Detectar se está em produção
+const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+
+// URL base da API
+const API_BASE_URL = isProduction 
+  ? window.location.origin + '/api'  // Usar a mesma origem (Railway)
+  : 'http://localhost:5002/api';     // Backend local
 
 export const apiService = {
   // Configuração base do axios

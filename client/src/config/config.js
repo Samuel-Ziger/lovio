@@ -1,6 +1,6 @@
 const config = {
-  backendUrl: import.meta.env.VITE_BACKEND_URL || 'https://us-central1-homenagemsz.cloudfunctions.net',
-  frontendUrl: import.meta.env.VITE_FRONTEND_URL || 'https://homenagemsz.web.app'
+  backendUrl: import.meta.env.VITE_BACKEND_URL || 'http://localhost:5002',
+  frontendUrl: import.meta.env.VITE_FRONTEND_URL || 'https://loviosz.web.app'
 };
 
 export default config; 
