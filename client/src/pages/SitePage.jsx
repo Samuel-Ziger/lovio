@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import styled from 'styled-components';
+import { mercadopagoService } from '../services/mercadopagoService';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -54,10 +54,10 @@ const SitePage = () => {
   useEffect(() => {
     const fetchSite = async () => {
       try {
-        const response = await axios.get(`/api/site/${slug}`);
-        setSite(response.data);
+        const siteData = mercadopagoService.buscarSite(slug);
+        setSite(siteData);
       } catch (error) {
-        if (error.response?.status === 410) {
+        if (error.message === 'Site expirado') {
           navigate('/site-expirado');
         } else {
           setError('Erro ao carregar o site');
@@ -74,21 +74,14 @@ const SitePage = () => {
   if (error) return <Container>{error}</Container>;
   if (!site) return <Container>Site não encontrado</Container>;
 
-  const dados = JSON.parse(site.dados_json);
-
   return (
     <Container>
       <Title>{site.nome_site}</Title>
       <Content>
-        {dados.emoji && <div style={{ fontSize: '4rem' }}>{dados.emoji}</div>}
-        {dados.imagem && <Image src={dados.imagem} alt={site.nome_site} />}
-        {dados.texto && <Text>{dados.texto}</Text>}
-        {dados.musica && (
-          <SpotifyPlayer
-            src={`https://open.spotify.com/embed/track/${dados.musica}`}
-            allow="encrypted-media"
-          />
-        )}
+        <div style={{ fontSize: '4rem' }}>💕</div>
+        <Text>{site.mensagem}</Text>
+        <Text>Data: {new Date(site.data_inicio).toLocaleDateString('pt-BR')}</Text>
+        <Text>Plano: {site.plano}</Text>
       </Content>
     </Container>
   );

@@ -1,223 +1,249 @@
-# Sistema de Criação de Sites com Pagamento
+# 🎁 Sistema de Criação de Sites de Presente - Firebase Hosting
 
-Este é um sistema que permite criar sites personalizados com diferentes planos e integração com o Mercado Pago para processamento de pagamentos.
+Este é um sistema completo para criar sites personalizados de presente com integração Mercado Pago, funcionando 100% no Firebase Hosting.
 
-## 📋 Passo a Passo Completo
+## 🚀 Funcionalidades
 
-### 1. Preparação do Ambiente
-1. Instale o Node.js (versão 14 ou superior)
-2. Crie uma conta de desenvolvedor no Mercado Pago
-3. Obtenha suas credenciais no painel do Mercado Pago:
-   - Access Token
-   - Public Key
-   - Client ID
-   - Client Secret
+- ✅ **Criação de sites personalizados** com mensagens, datas e planos
+- ✅ **Integração Mercado Pago** para pagamentos
+- ✅ **Hospedagem gratuita** no Firebase Hosting
+- ✅ **Interface moderna** com React e Material-UI
+- ✅ **Responsivo** para mobile e desktop
+- ✅ **Banco de dados MySQL** para persistência de dados
+- ✅ **Sites permanentes** com sistema de expiração por plano
 
-### 2. Configuração do Projeto
-1. Clone o repositório:
-```bash
-git clone [URL_DO_REPOSITÓRIO]
-cd [NOME_DO_DIRETÓRIO]
-```
+## 📋 Planos Disponíveis
 
-2. Instale as dependências:
-```bash
-npm install
-npm install mercadopago (dentro da pasta client)
-```
+- **Basic**: R$ 19,99 - Site simples (1 ano)
+- **Premium**: R$ 39,90 - Site com mais recursos (2 anos)
+- **Deluxe**: R$ 59,90 - Site completo (10 anos)
 
-3. Crie o arquivo `.env` na raiz do projeto:
-```bash
-cp .env.example .env
-```
+## 🛠️ Tecnologias
 
-4. Configure o arquivo `.env`:
-```bash
-cp .env.example .env
-```
+- **Frontend**: React + Vite + Material-UI
+- **Backend**: Node.js + Express
+- **Banco de Dados**: MySQL com Sequelize
+- **Containerização**: Docker + Docker Compose
+- **Pagamentos**: Mercado Pago
+- **Hospedagem**: Firebase Hosting
+- **Estilização**: Styled Components + CSS
 
-5. Configure o arquivo `.env`:
-```env
-PORT=5001
-FRONTEND_URL=http://localhost:5173
-MERCADO_PAGO_ACCESS_TOKEN=SEU_ACCESS_TOKEN
-MERCADO_PAGO_PUBLIC_KEY=SUA_PUBLIC_KEY
-MERCADO_PAGO_CLIENT_ID=SEU_CLIENT_ID
-MERCADO_PAGO_CLIENT_SECRET=SEU_CLIENT_SECRET
-```
+## 🐳 Configuração do Banco de Dados
 
-### 3. Configuração do Mercado Pago
-1. Acesse o painel do Mercado Pago: https://www.mercadopago.com.br/developers/panel/credentials
-2. Ative o modo sandbox para testes
-3. Copie suas credenciais para o arquivo `.env`
-4. Configure as URLs de retorno no arquivo `controllers/siteController.js`
-
-### 4. Executando o Sistema
-1. Inicie o servidor:
-```bash
-npm run dev
-```
-
-2. Verifique se o servidor está rodando:
-- Acesse: http://localhost:5001/api/health
-- Deve retornar: `{ status: "ok" }`
-
-3. Teste a criação de uma preferência:
-- Acesse: http://localhost:5173
-- Preencha os dados do site
-- Selecione um plano
-- Clique em "Criar Site"
-
-### 5. Testando Pagamentos
-1. Use os cartões de teste:
-   - Mastercard: 5031 4332 1540 6351
-   - Visa: 4235 6477 2802 5682
-   - Data: qualquer data futura
-   - CVV: qualquer número de 3 dígitos
-   - Nome: qualquer nome
-   - CPF: qualquer CPF válido
-
-2. Fluxo de teste:
-   - Crie um novo site
-   - Selecione o plano Basic (R$ 19,90)
-   - Use um cartão de teste
-   - Verifique o webhook em: http://localhost:5001/api/pagamento/webhook
-
-### 6. Verificação Final
-1. Confirme se as URLs estão corretas:
-   - Frontend: http://localhost:5173
-   - Backend: http://localhost:5001
-   - Webhook: http://localhost:5001/api/pagamento/webhook
-
-2. Verifique os logs do servidor para erros
-3. Teste todos os planos disponíveis
-4. Confirme se os webhooks estão funcionando
-
-## 🚀 Tecnologias Utilizadas
-
-- Node.js
-- Express
-- React
-- Mercado Pago SDK
-- MongoDB (opcional)
-
-## 📋 Pré-requisitos
-
+### 1. Pré-requisitos
+- Docker e Docker Compose instalados
 - Node.js (versão 14 ou superior)
-- NPM ou Yarn
-- Conta no Mercado Pago (conta de desenvolvedor)
-- Credenciais do Mercado Pago:
-  - Access Token
-  - Public Key
-  - Client ID
-  - Client Secret
 
-## 🔧 Instalação
-
-1. Clone o repositório:
+### 2. Iniciar o Banco de Dados
 ```bash
+# Iniciar MySQL e phpMyAdmin
+npm run db:up
+
+# Verificar logs do MySQL
+npm run db:logs
+
+# Testar conexão com o banco
+npm run db:test
+```
+
+### 3. Acessar phpMyAdmin
+- **URL**: http://localhost:8080
+- **Usuário**: `namoro_user`
+- **Senha**: `namoro123`
+- **Banco**: `namoromemoria`
+
+### 4. Comandos Úteis do Banco
+```bash
+# Parar os containers
+npm run db:down
+
+# Reiniciar o banco
+npm run db:restart
+
+# Resetar completamente (apaga todos os dados)
+npm run db:reset
+
+# Ver logs em tempo real
+npm run db:logs
+```
+
+### 5. Configurações do Banco
+- **Host**: localhost
+- **Porta**: 3307 (evita conflito com MySQL local)
+- **Database**: namoromemoria
+- **Usuário**: namoro_user
+- **Senha**: namoro123
+
+## 🚀 Deploy Rápido
+
+### 1. Configuração Inicial
+```bash
+# Clone o repositório
 git clone [URL_DO_REPOSITÓRIO]
 cd [NOME_DO_DIRETÓRIO]
+
+# Instale as dependências
+npm run install:all
+
+# Inicie o banco de dados
+npm run db:up
+
+# Teste a conexão
+npm run db:test
 ```
 
-2. Instale as dependências do backend:
-```bash
-cd backend
-npm install
-```
+### 2. Configurar Mercado Pago (Opcional)
+Para usar pagamentos reais, edite o arquivo `config/config.js`:
 
-3. Instale as dependências do frontend:
-```bash
-cd frontend
-npm install
-```
-
-## ⚙️ Configuração
-
-1. Configure as variáveis de ambiente do backend:
-```bash
-# Crie um arquivo .env na raiz do backend
-cp .env.example .env
-```
-
-2. Edite o arquivo `.env` com suas credenciais:
-```env
-PORT=5001
-FRONTEND_URL=http://localhost:5173
-MERCADO_PAGO_ACCESS_TOKEN=SEU_ACCESS_TOKEN
-MERCADO_PAGO_PUBLIC_KEY=SUA_PUBLIC_KEY
-MERCADO_PAGO_CLIENT_ID=SEU_CLIENT_ID
-MERCADO_PAGO_CLIENT_SECRET=SEU_CLIENT_SECRET
-```
-
-3. Configure as URLs de retorno no arquivo `controllers/siteController.js`:
 ```javascript
-back_urls: {
-    success: 'http://localhost:5173/sucesso',
-    failure: 'http://localhost:5173/erro',
-    pending: 'http://localhost:5173/pendente'
+mercadoPago: {
+  accessToken: 'SUA_CHAVE_ACCESS_TOKEN_AQUI',
+  publicKey: 'SUA_CHAVE_PUBLICA_AQUI'
 }
 ```
 
-## 🚀 Executando o Sistema
-
-1. Inicie o backend:
+### 3. Rodar em Desenvolvimento
 ```bash
-cd backend
+# Rodar frontend e backend
 npm run dev
+
+# Ou rodar apenas o servidor
+npm run dev:server
 ```
 
-2. Em outro terminal, inicie o frontend:
+### 4. Deploy
 ```bash
-cd frontend
-npm run dev
+# Build do projeto
+npm run build
+
+# Deploy para Firebase
+firebase deploy --only hosting
 ```
 
-3. Acesse o sistema:
-- Frontend: http://localhost:5173
-- Backend: http://localhost:5001
+## 🎯 Como Usar
+
+### Para Criar um Site:
+1. Acesse: http://localhost:5173
+2. Preencha os dados do site (título, mensagem, data)
+3. Escolha um plano
+4. Faça o pagamento
+5. Compartilhe o link do seu site!
+
+### Para Ver um Site Criado:
+- Acesse: `http://localhost:5173/site/[nome-do-site]`
+
+## 📁 Estrutura do Projeto
+
+```
+├── client/                 # Frontend React
+│   ├── src/
+│   │   ├── components/     # Componentes reutilizáveis
+│   │   ├── pages/         # Páginas da aplicação
+│   │   ├── services/      # Serviços (Mercado Pago)
+│   │   └── config/        # Configurações
+│   └── dist/              # Build para produção
+├── config/                # Configurações do projeto
+│   ├── database.js        # Configuração do banco
+│   └── config.js          # Configurações gerais
+├── models/                # Modelos do Sequelize
+│   └── Site.js           # Modelo de Site
+├── scripts/               # Scripts utilitários
+│   ├── init.sql          # Inicialização do banco
+│   └── test-database.js  # Teste de conexão
+├── docker-compose.yml     # Configuração Docker
+├── postman_collection.json # Coleção Postman para testes
+├── firebase.json          # Configuração Firebase
+└── package.json           # Dependências do projeto
+```
+
+## 🔧 Desenvolvimento Local
+
+```bash
+# Instalar dependências
+npm run install:all
+
+# Iniciar banco de dados
+npm run db:up
+
+# Testar banco de dados
+npm run db:test
+
+# Rodar em desenvolvimento
+npm run dev
+
+# Build para produção
+npm run build
+```
+
+## 🧪 Testando a API
+
+### Com Postman:
+1. Importe o arquivo `postman_collection.json` no Postman
+2. Teste as seguintes rotas:
+   - `GET /api/health` - Health check da API
+   - `GET /api/test` - Teste básico
+   - `POST /api/pagamento/preferencia` - Criar preferência de pagamento
+   - `GET /api/site/:slug` - Buscar site por slug
+
+### Com cURL:
+```bash
+# Health check
+curl http://localhost:5001/api/health
+
+# Teste da API
+curl http://localhost:5001/api/test
+```
 
 ## 💳 Testando Pagamentos
 
-1. Use o ambiente sandbox do Mercado Pago para testes:
-- Acesse: https://www.mercadopago.com.br/developers/panel/credentials
-- Ative o modo sandbox
+Para testar sem pagamentos reais, o sistema simula a criação de preferências. Em produção, configure suas credenciais do Mercado Pago.
 
-2. Cartões de teste:
-- Mastercard: 5031 4332 1540 6351
-- Visa: 4235 6477 2802 5682
-- Data de validade: qualquer data futura
-- CVV: qualquer número de 3 dígitos
-- Nome: qualquer nome
-- CPF: qualquer CPF válido
+## 🌐 URLs Importantes
 
-## 📝 Planos Disponíveis
+- **Site Principal**: http://localhost:5173
+- **Criar Site**: http://localhost:5173
+- **phpMyAdmin**: http://localhost:8080
+- **API Health**: http://localhost:5001/api/health
+- **Exemplo de Site**: http://localhost:5173/site/exemplo-amor
 
-- Basic: R$ 1,00
-- Premium: R$ 39,90
-- Deluxe: R$ 59,90
+## 🎨 Personalização
 
-## 🔍 Endpoints da API
+### Cores e Tema
+Edite o arquivo `client/src/theme.js` para personalizar cores e estilos.
 
-- `GET /api/health` - Verifica a saúde da API
-- `POST /api/pagamento/preferencia` - Cria preferência de pagamento
-- `GET /api/pagamento/webhook` - Webhook para notificações do Mercado Pago
+### Componentes
+Todos os componentes estão em `client/src/components/` e podem ser facilmente modificados.
 
-## ⚠️ Observações Importantes
+## 📱 Responsividade
 
-1. Certifique-se de que todas as URLs de retorno estão corretamente configuradas
-2. Mantenha suas credenciais do Mercado Pago seguras
-3. Use o ambiente sandbox para testes
-4. Verifique se as portas 5001 e 5173 estão disponíveis
+O site é totalmente responsivo e funciona perfeitamente em:
+- 📱 Smartphones
+- 📱 Tablets  
+- 💻 Desktops
 
-## 🆘 Suporte
+## 🔒 Segurança
 
-Em caso de problemas:
-1. Verifique os logs do servidor
-2. Confirme se todas as dependências estão instaladas
-3. Verifique se as credenciais do Mercado Pago estão corretas
-4. Certifique-se de que as URLs de retorno estão acessíveis
+- Dados armazenados no banco MySQL
+- Validação de dados no backend
+- Integração segura com Mercado Pago
+- Sistema de expiração automática
 
-## 📄 Licença
+## 🚀 Próximos Passos
 
-Este projeto está sob a licença MIT. 
+- [x] Configuração do banco de dados MySQL
+- [x] Sistema de sites permanentes
+- [ ] Implementar CRUD completo no controller
+- [ ] Modificar webhook para salvar no banco
+- [ ] Atualizar frontend para usar API
+- [ ] Adicionar mais templates de site
+- [ ] Integração com redes sociais
+- [ ] Sistema de usuários
+- [ ] Analytics e métricas
+
+## 📞 Suporte
+
+Para dúvidas ou problemas, abra uma issue no repositório.
+
+---
+
+**Desenvolvido com ❤️ para criar momentos especiais!** 

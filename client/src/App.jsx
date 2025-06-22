@@ -16,6 +16,7 @@ import CreatePayment from './pages/CreatePayment';
 import PaymentSuccess from './pages/PaymentSuccess';
 import PaymentError from './pages/PaymentError';
 import PaymentPending from './pages/PaymentPending';
+import SitePage from './pages/SitePage';
 
 const App = () => {
   return (
@@ -87,6 +88,7 @@ const App = () => {
             <Route path="/create/plan" element={<CreatePlan />} />
             <Route path="/create/payment" element={<CreatePayment />} />
             <Route path="/memory/:customUrl" element={<MemoryPage />} />
+            <Route path="/site/:slug" element={<SitePage />} />
             <Route path="/pagamento/sucesso" element={<PaymentSuccess />} />
             <Route path="/pagamento/erro" element={<PaymentError />} />
             <Route path="/pagamento/pendente" element={<PaymentPending />} />

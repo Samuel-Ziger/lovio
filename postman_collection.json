@@ -1,0 +1,95 @@
+{
+  "info": {
+    "name": "Namoro Memoria API",
+    "description": "Coleção de testes para a API de sites de presente",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5001/api/health",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5001",
+          "path": ["api", "health"]
+        }
+      }
+    },
+    {
+      "name": "Teste API",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5001/api/test",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5001",
+          "path": ["api", "test"]
+        }
+      }
+    },
+    {
+      "name": "Criar Preferência de Pagamento",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"dados_site\": {\n    \"plano\": \"basic\",\n    \"nome_site\": \"Meu Amor\",\n    \"slug\": \"meu-amor\",\n    \"data_inicio\": \"2023-01-01\",\n    \"mensagem\": \"Para sempre juntos\"\n  }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5001/api/pagamento/preferencia",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5001",
+          "path": ["api", "pagamento", "preferencia"]
+        }
+      }
+    },
+    {
+      "name": "Buscar Site por Slug",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5001/api/site/exemplo-amor",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5001",
+          "path": ["api", "site", "exemplo-amor"]
+        }
+      }
+    },
+    {
+      "name": "Listar Todos os Sites",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5001/api/sites",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5001",
+          "path": ["api", "sites"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5001",
+      "type": "string"
+    }
+  ]
+} 

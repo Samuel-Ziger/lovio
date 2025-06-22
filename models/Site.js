@@ -17,7 +17,7 @@ const Site = sequelize.define('Site', {
     allowNull: false
   },
   plano: {
-    type: DataTypes.ENUM('anual', 'vitalicio'),
+    type: DataTypes.ENUM('basic', 'premium', 'deluxe'),
     allowNull: false
   },
   data_criacao: {
@@ -34,7 +34,7 @@ const Site = sequelize.define('Site', {
     allowNull: false
   },
   status: {
-    type: DataTypes.ENUM('ativo', 'expirado'),
+    type: DataTypes.ENUM('ativo', 'expirado', 'pendente'),
     allowNull: false,
     defaultValue: 'ativo'
   }

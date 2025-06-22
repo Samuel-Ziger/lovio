@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: namoromemoria_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: namoromemoria
+      MYSQL_USER: namoro_user
+      MYSQL_PASSWORD: namoro123
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      - namoro_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: namoromemoria_phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: namoro_user
+      PMA_PASSWORD: namoro123
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    networks:
+      - namoro_network
+
+volumes:
+  mysql_data:
+
+networks:
+  namoro_network:
+    driver: bridge 

@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { FaSpinner } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import config from '../config/config';
+import { mercadopagoService } from '../services/mercadopagoService';
 import {
   Container,
   Paper,
@@ -24,19 +23,7 @@ const CreatePayment = () => {
   useEffect(() => {
     const iniciarPagamento = async () => {
       try {
-        console.log('Testando conexão com o servidor...');
-        // Teste de conexão
-        const testResponse = await axios.get(`${config.backendUrl}/api/test`, {
-          withCredentials: true
-        });
-        console.log('Teste de conexão:', testResponse.data);
-
-        // Verificar saúde do servidor
-        console.log('Verificando saúde do servidor...');
-        const healthResponse = await axios.get(`${config.backendUrl}/api/health`, {
-          withCredentials: true
-        });
-        console.log('Servidor online:', healthResponse.data);
+        console.log('Iniciando processo de pagamento...');
 
         // Recuperar dados do localStorage
         const dados_site = {
@@ -57,43 +44,24 @@ const CreatePayment = () => {
           throw new Error(`Campos obrigatórios faltando: ${camposFaltantes.join(', ')}`);
         }
 
-        // Preparar dados para o backend
-        const dadosParaBackend = {
-          dados_site
-        };
-
-        console.log('Enviando dados para o backend:', dadosParaBackend);
-
         // Criar preferência de pagamento
         console.log('Criando preferência de pagamento...');
-        const response = await axios.post(
-          `${config.backendUrl}/api/pagamento/preferencia`,
-          dadosParaBackend,
-          {
-            withCredentials: true,
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          }
-        );
+        const response = await mercadopagoService.criarPreferencia(dados_site);
 
-        console.log('Resposta do servidor:', response.data);
+        console.log('Resposta do serviço:', response);
 
-        if (response.data.init_point) {
+        if (response.init_point) {
           // Redirecionar para o Mercado Pago
-          window.location.href = response.data.init_point;
+          window.location.href = response.init_point;
         } else {
           throw new Error('URL de pagamento não recebida');
         }
       } catch (error) {
         console.error('Erro ao iniciar pagamento:', error);
-        console.log('Resposta do servidor:', error.response?.data);
         
         let errorMessage = 'Ocorreu um erro ao processar o pagamento.';
         
-        if (error.response?.data?.error) {
-          errorMessage = error.response.data.error;
-        } else if (error.message) {
+        if (error.message) {
           errorMessage = error.message;
         }
         

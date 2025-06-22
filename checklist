@@ -1,0 +1,7 @@
+Configurar banco de dados MySQL real
+Implementar CRUD completo no controller
+Modificar webhook para salvar no banco
+Atualizar frontend para usar API
+Implementar sistema de expiração por plano
+Adicionar sistema de renovação
+Implementar backup e monitoramento
